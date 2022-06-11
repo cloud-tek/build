@@ -87,45 +87,47 @@ jobs:
           versionSpec: '5.x'
       - name: run giversion
         uses: gittools/actions/gitversion/execute@v0.9.7
-      - name: gitversion
-        run: |
-          echo "Major: ${{ steps.gitversion.outputs.major }}"
-          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
-          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
-          echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
-          echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
-          echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
-          echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
-          echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
-          echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
-          echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
-          echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
-          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
-          echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
-          echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}"
-          echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
-          echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
-          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
-          echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
-          echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
-          echo "EscapedBranchName: ${{ steps.gitversion.outputs.escapedBranchName }}"
-          echo "Sha: ${{ steps.gitversion.outputs.sha }}"
-          echo "ShortSha: ${{ steps.gitversion.outputs.shortSha }}"
-          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
-          echo "NuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}"
-          echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
-          echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}"
-          echo "VersionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}"
-          echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
-          echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
-          echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
-          echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+      # - name: gitversion
+      #   run: |
+      #     echo "Major: ${{ steps.gitversion.outputs.major }}"
+      #     echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+      #     echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+      #     echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+      #     echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
+      #     echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
+      #     echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
+      #     echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
+      #     echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
+      #     echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
+      #     echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
+      #     echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+      #     echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+      #     echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
+      #     echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}"
+      #     echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+      #     echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+      #     echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+      #     echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+      #     echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
+      #     echo "EscapedBranchName: ${{ steps.gitversion.outputs.escapedBranchName }}"
+      #     echo "Sha: ${{ steps.gitversion.outputs.sha }}"
+      #     echo "ShortSha: ${{ steps.gitversion.outputs.shortSha }}"
+      #     echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+      #     echo "NuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}"
+      #     echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+      #     echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}"
+      #     echo "VersionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}"
+      #     echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+      #     echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
+      #     echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
+      #     echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
       - uses: actions/setup-dotnet@v1
+        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         name: dotnet installer
         with:
           dotnet-version: ${{ inputs.NetCoreVersion }}
       - name: global.json
+        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         shell: bash
         run: |
           echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > global.json
@@ -133,53 +135,54 @@ jobs:
           dotnet nuget list source
           dotnet tool restore
         name: dotnet tool restore
+        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         shell: bash
       - name: dotnet nuke Compile
+        if: ${{ inputs.Compile && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         shell: bash
-        if: ${{ inputs.Compile }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke Compile
       - name: dotnet nuke UnitTests
         shell: bash
-        if: ${{ inputs.UnitTests }}
+        if: ${{ inputs.UnitTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke UnitTests
       - name: dotnet nuke IntegrationTests
         shell: bash
-        if: ${{ inputs.IntegrationTests }}
+        if: ${{ inputs.IntegrationTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke IntegrationTests
       - name: dotnet nuke Publish
         shell: bash
-        if: ${{ inputs.Publish }}
+        if: ${{ inputs.Publish && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke Publish
       - name: dotnet nuke Pack
         shell: bash
-        if: ${{ inputs.Pack }}
+        if: ${{ inputs.Pack && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke Pack
       - name: dotnet nuke Push
         shell: bash
-        if: ${{ inputs.Push }}
+        if: ${{ inputs.Push && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NuGetApiKey }}
       - name: dotnet nuke ModuleTests
         shell: bash
-        if: ${{ inputs.ModuleTests }}
+        if: ${{ inputs.ModuleTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke ModuleTests
       - name: dotnet nuke SystemTests
         shell: bash
-        if: ${{ inputs.SystemTests }}
+        if: ${{ inputs.SystemTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke SystemTests
