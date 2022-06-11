@@ -5,7 +5,9 @@ namespace CloudTek.Build.Primitives
     public enum TestType
     {
         UnitTests = 0,
-        IntegrationTests
+        IntegrationTests,
+        ModuleTests,
+        E2ETests
     }
     public class Test
     {

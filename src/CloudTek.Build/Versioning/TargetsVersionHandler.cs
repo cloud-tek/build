@@ -5,7 +5,7 @@ namespace CloudTek.Build.Versioning
 {
     public class TargetsVersionHandler : XmlTargetsFileVersionHandler, IAssemblyVersionHandler
     {
-        public string Handle(string path)
+        public string? Handle(string path)
         {
             return base.Handle(path, VersionElement);
         }

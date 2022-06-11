@@ -18,10 +18,10 @@ namespace CloudTek.Build.Primitives
     {
         public string Project { get; set; } = default!;
         public string? Module { get; set;}
-
+        
+        private string _path = default!;
         private IDictionary<TestType, AbsolutePath> _testProjectPaths = new Dictionary<TestType, AbsolutePath>();
 
-        private string _path = default!;
 
         public string Path
         {
@@ -80,7 +80,7 @@ namespace CloudTek.Build.Primitives
 
         private void SetPaths(AbsolutePath sourceDirectory, AbsolutePath testsDirectory)
         {
-            if (_path != null) return;
+            if (!string.IsNullOrEmpty(_path)) return;
 
             _path = $"{sourceDirectory}/{Project}/{Project}.csproj";
 
@@ -91,7 +91,7 @@ namespace CloudTek.Build.Primitives
 
         private void SetAssemblyName()
         {
-            if (_name != null) return;
+            if (!string.IsNullOrEmpty(_name)) return;
 
             using var reader = new StreamReader(_path);
             var doc = XDocument.Load(reader);
@@ -111,7 +111,7 @@ namespace CloudTek.Build.Primitives
 
         private void SetVersionPrefix()
         {
-            if (_versionPrefix != null) return;
+            if (!string.IsNullOrEmpty(_versionPrefix)) return;
 
             _versionPrefix = AssemblyVersionHandler.Handle(Path);
         }
