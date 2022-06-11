@@ -30,7 +30,7 @@ on:
 
 jobs:
   build:
-    uses: cloud-tek/build-system/.github/workflows/dotnet.yml@main
+    uses: cloud-tek/build/.github/workflows/dotnet.yml@main
     name: build
     with:
       Directory: ${{ github.workspace }}
