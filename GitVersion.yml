@@ -15,7 +15,7 @@ build-metadata-padding: 4
 branches:
   main:
     regex: ^(main|master)$
-    mode: ContinuousDelivery
+    mode: MainLine
     tag: ''
     increment: 'Patch'
     is-source-branch-for:
