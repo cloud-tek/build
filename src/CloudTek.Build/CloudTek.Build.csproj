@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RepositoryUrl>https://dev.azure.com/AllegroTechies/CloudTek.DevOps/_git/ops-build-system</RepositoryUrl>
+	<Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nuke.Common" Version="6.0.1" />
+  </ItemGroup>
+
+  <Import Project="..\Version.targets" />
+</Project>

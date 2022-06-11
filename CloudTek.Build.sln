@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build", "src\CloudTek.Build\CloudTek.Build.csproj", "{F124FC31-C4A7-4C80-95C2-1425C89FC311}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\_build.csproj", "{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tests", "test\CloudTek.Build.Tests\CloudTek.Build.Tests.csproj", "{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F124FC31-C4A7-4C80-95C2-1425C89FC311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F124FC31-C4A7-4C80-95C2-1425C89FC311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F124FC31-C4A7-4C80-95C2-1425C89FC311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F124FC31-C4A7-4C80-95C2-1425C89FC311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

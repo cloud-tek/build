@@ -1,0 +1,199 @@
+name: "dotnet.yml"
+
+# # env:
+# #   NETCORE_VERSION: 6.0.100
+# #   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+# #   DOTNET_ROLL_FORWARD: Major
+
+on:
+  workflow_call:
+    secrets:
+      NuGetApiKey:
+        description: "NuGet API Key"
+        required: false
+    inputs:
+      Directory:
+        description: "Project directory"
+        type: string
+        required: true
+      NetCoreVersion:
+        type: string
+        required: true
+      Compile:
+        description: "Flag indicating if Compile task is to be run"
+        type: boolean
+        default: false
+        required: false
+      Publish:
+        description: "Flag indicating if Publish task is to be run after the Unit&Integration tests"
+        type: boolean
+        default: false
+        required: false
+      Pack:
+        description: "Flag indicating if Pack task is to be run after the Unit&Integration tests"
+        type: boolean
+        default: false
+        required: false
+      Push:
+        description: "Flag indicating if Push task is to be run after the Pack task"
+        type: boolean
+        default: false
+        required: false
+      UnitTests:
+        description: "Flag indicating if UnitTests task is to be run"
+        type: boolean
+        default: false
+        required: false
+      IntegrationTests:
+        description: "Flag indicating if IntegrationTests task is to be run"
+        type: boolean
+        default: false
+        required: false
+      ModuleTests:
+        description: "Flag indicating if ModuleTests task is to be run"
+        type: boolean
+        default: false
+        required: false
+      SystemTests:
+        description: "Flag indicating if SystemTests task is to be run"
+        type: boolean
+        default: false
+        required: false
+      SmokeTests:
+        description: "Flag indicating if SmokeTests task is to be run"
+        type: boolean
+        default: false
+        required: false
+      NuGetApiUrl:
+        description: "NuGet Url"
+        type: string
+        required: false
+
+jobs:
+  nuke:
+    name: nuke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+      - id: auto-tag
+        uses: cloud-tek/actions/auto-tag@0.8
+        with:
+          branch: main
+      - name: setup gitversion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+      - name: run giversion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+      - name: gitversion
+        run: |
+          echo "Major: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+          echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+          echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
+          echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
+          echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
+          echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
+          echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
+          echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
+          echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
+          echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}"
+          echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+          echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+          echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+          echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
+          echo "EscapedBranchName: ${{ steps.gitversion.outputs.escapedBranchName }}"
+          echo "Sha: ${{ steps.gitversion.outputs.sha }}"
+          echo "ShortSha: ${{ steps.gitversion.outputs.shortSha }}"
+          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          echo "NuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}"
+          echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+          echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}"
+          echo "VersionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}"
+          echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+          echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
+          echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
+          echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+      - uses: actions/setup-dotnet@v1
+        name: dotnet installer
+        with:
+          dotnet-version: ${{ inputs.NetCoreVersion }}
+      - name: global.json
+        shell: bash
+        run: |
+          echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > global.json
+      - run: |
+          dotnet nuget list source
+          dotnet tool restore
+        name: dotnet tool restore
+        working-directory: ${{ inputs.Directory }}
+        shell: bash
+      - name: dotnet nuke Compile
+        shell: bash
+        if: ${{ inputs.Compile }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke Compile
+      - name: dotnet nuke UnitTests
+        shell: bash
+        if: ${{ inputs.UnitTests }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke UnitTests
+      - name: dotnet nuke IntegrationTests
+        shell: bash
+        if: ${{ inputs.IntegrationTests }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke IntegrationTests
+      - name: dotnet nuke Publish
+        shell: bash
+        if: ${{ inputs.Publish }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke Publish
+      - name: dotnet nuke Pack
+        shell: bash
+        if: ${{ inputs.Pack }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke Pack
+      - name: dotnet nuke Push
+        shell: bash
+        if: ${{ inputs.Push }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NuGetApiKey }}
+      - name: dotnet nuke ModuleTests
+        shell: bash
+        if: ${{ inputs.ModuleTests }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke ModuleTests
+      - name: dotnet nuke SystemTests
+        shell: bash
+        if: ${{ inputs.SystemTests }}
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke SystemTests
+      # https://github.com/marketplace/actions/test-reporter
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: XUnit Tests # Name of the check run which will be created
+          path: test/results/*.trx
+          reporter: dotnet-trx # Format of test results
+    # https://github.com/marketplace/actions/cobertura-report
+    # - uses: 5monkeys/cobertura-action@master
+    #   with:
+    #     path: test/results/*.trx
+    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+    #     minimum_coverage: 1
