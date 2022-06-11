@@ -31,9 +31,9 @@ on:
     inputs: {}
 
 jobs:
-  gitversion:
+  diag:
     uses: cloud-tek/build/.github/workflows/gitversion.yml@main
-    name: gitversion
+    name: diag
   build:
     uses: cloud-tek/build/.github/workflows/dotnet.yml@main
     name: build
