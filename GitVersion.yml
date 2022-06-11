@@ -1,0 +1,86 @@
+mode: ContinuousDelivery
+# Conventional Commits https://www.conventionalcommits.org/en/v1.0.0/
+# https://regex101.com/r/Ms7Vx6/2
+# major-version-bump-message: "(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z]+\\))?(!: .+|: (.+\\n\\n)+BREAKING CHANGE: .+)"
+# https://regex101.com/r/Oqhi2m/1
+# minor-version-bump-message: "(feat)(\\([a-z]+\\))?: .+"
+# https://regex101.com/r/f5C4fP/1
+# patch-version-bump-message: "(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([a-z]+\\))?: .+"
+# Match nothing
+no-bump-message: ^\b$
+continuous-delivery-fallback-tag: ''
+legacy-semver-padding: 4
+build-metadata-padding: 4
+branches:
+  main:
+    regex: ^(main|master)$
+    mode: ContinuousDelivery
+    tag: ''
+    increment: 'Patch'
+    is-source-branch-for:
+    - release
+    - feature
+    - hotfix
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: true
+    pre-release-weight: 55000
+  feature:
+    regex: ^feature[/-]
+    mode: ContinuousDelivery
+    tag: useBranchName
+    increment: Inherit
+    source-branches: [ 'main', 'release' ]
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  release:
+    regex: ^release[/-]
+    mode: ContinuousDeployment
+    tag: pre
+    source-branches:
+    - main
+    increment: None
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: true
+    is-mainline: false
+    pre-release-weight: 30000
+  hotfix:
+    regex: ^hotfix[/-]
+    mode: ContinuousDeployment
+    tag: pre
+    increment: Patch
+    source-branches:
+    - main
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  pull-request:
+    regex: ^(pull|pull\-requests|pr)[/-]
+    mode: ContinuousDeployment
+    tag: pre
+    increment: None
+    prevent-increment-of-merged-branch-version: false
+    tag-number-pattern: '[/-](?<number>\d+)[-/]'
+    track-merge-target: false
+    source-branches: [ 'main', 'release', 'feature', 'hotfix' ]
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  support:
+    # Match nothing
+    regex: ^\b$
+  develop:
+    # Match nothing
+    regex: ^\b$
