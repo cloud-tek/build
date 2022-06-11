@@ -1,5 +1,5 @@
 mode: MainLine
-commit-message-incrementing: MergeMessageOnly
+commit-message-incrementing: Enabled
 # Conventional Commits https://www.conventionalcommits.org/en/v1.0.0/
 # https://regex101.com/r/Ms7Vx6/2
 major-version-bump-message: "(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([a-z]+\\))?(!: .+|: (.+\\n\\n)+BREAKING CHANGE: .+)"
