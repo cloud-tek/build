@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RepositoryUrl>https://dev.azure.com/AllegroTechies/CloudTek.DevOps/_git/build</RepositoryUrl>
-	<Nullable>enable</Nullable>
+    <RepositoryUrl>https://github.com/cloud-tek/build</RepositoryUrl>
+	  <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
