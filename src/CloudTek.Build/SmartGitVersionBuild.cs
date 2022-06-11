@@ -3,7 +3,7 @@ using Nuke.Common.Tools.GitVersion;
 
 namespace CloudTek.Build
 {
-    public abstract class SmartGitVersionBuild : SmartBuild<VersioningStrategy.Default>
+    public abstract class SmartGitVersionBuild : SmartBuild<VersioningStrategy.GitVersion>
     {
         protected SmartGitVersionBuild(Repository repository) : base(repository)
         {
