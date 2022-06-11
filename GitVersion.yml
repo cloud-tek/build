@@ -32,7 +32,7 @@ branches:
     regex: ^feature[/-]
     mode: ContinuousDelivery
     tag: useBranchName
-    increment: Inherit
+    increment: None
     source-branches: [ 'main', 'release' ]
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
@@ -66,19 +66,19 @@ branches:
     is-release-branch: false
     is-mainline: false
     pre-release-weight: 30000
-  pull-request:
-    regex: ^(pull|pull\-requests|pr)[/-]
-    mode: ContinuousDeployment
-    tag: pre
-    increment: None
-    prevent-increment-of-merged-branch-version: false
-    tag-number-pattern: '[/-](?<number>\d+)[-/]'
-    track-merge-target: false
-    source-branches: [ 'main', 'release', 'feature', 'hotfix' ]
-    tracks-release-branches: false
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 30000
+  # pull-request:
+  #   regex: ^(pull|pull\-requests|pr)[/-]
+  #   mode: ContinuousDeployment
+  #   tag: pre
+  #   increment: None
+  #   prevent-increment-of-merged-branch-version: false
+  #   tag-number-pattern: '[/-](?<number>\d+)[-/]'
+  #   track-merge-target: false
+  #   source-branches: [ 'main', 'release', 'feature', 'hotfix' ]
+  #   tracks-release-branches: false
+  #   is-release-branch: false
+  #   is-mainline: false
+  #   pre-release-weight: 30000
   support:
     # Match nothing
     regex: ^\b$
