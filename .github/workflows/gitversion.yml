@@ -1,4 +1,4 @@
-name: "dotnet.yml"
+name: "gitversion.yml (reusable)"
 
 on:
   workflow_call:
