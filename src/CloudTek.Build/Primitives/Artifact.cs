@@ -20,8 +20,6 @@ namespace CloudTek.Build.Primitives
         public string? Module { get; set;}
         
         private string _path = default!;
-        private IDictionary<TestType, AbsolutePath> _testProjectPaths = new Dictionary<TestType, AbsolutePath>();
-
 
         public string Path
         {
@@ -83,10 +81,6 @@ namespace CloudTek.Build.Primitives
             if (!string.IsNullOrEmpty(_path)) return;
 
             _path = $"{sourceDirectory}/{Project}/{Project}.csproj";
-
-            _testProjectPaths.Add(TestType.UnitTests, testsDirectory / $"{Project}.Tests.Unit/{Project}.csproj");
-            _testProjectPaths.Add(TestType.IntegrationTests,
-                 testsDirectory / $"{Project}.Tests.Integration/{Project}.csproj");
         }
 
         private void SetAssemblyName()
