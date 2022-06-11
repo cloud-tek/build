@@ -1,4 +1,4 @@
-name: "dotnet.yml"
+name: "dotnet.yml (reusable)"
 
 # # env:
 # #   NETCORE_VERSION: 6.0.100
