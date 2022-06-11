@@ -10,13 +10,13 @@
       },
       {
         "title": "## 🧪 Tests",
-        "labels": ["test"],
+        "labels": ["test"]
       },
       {
         "title": "## 🧪 Tests and some 🪄 Magic",
         "labels": ["test", "magic"],
         "exclude_labels": ["no-magic"],
-        "exhaustive": true,
+        "exhaustive": true
       }
     ],
     "ignore_labels": [
