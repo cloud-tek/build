@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: "0"
-      - id: auto-tag
+      - id: auto-release
         uses: cloud-tek/actions/auto-release@0.10
         with:
           branch: main
