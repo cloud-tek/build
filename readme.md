@@ -33,9 +33,8 @@ public class Build : SmartBuild<VersioningStrategy.Default>
 
 #### Prerequisites
 
-N/A
+`SmartGitVersionBuild` required `GitVersion.Tool` to be installed.
 
-#### Usage
 ```bash
 dotnet tool restore
 dotnet nuke :add-package GitVersion.Tool --version 5.8.2
