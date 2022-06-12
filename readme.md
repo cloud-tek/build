@@ -1,6 +1,7 @@
 # cloud-tek/build
 
 Contains the shared build system based on NUKE.
+The `CloudTek.Build` package is meant to be a reusable build system for a variety of projects which are to share behavior in a large multi-repo scenario.
 
 ## Usage
 
