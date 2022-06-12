@@ -78,7 +78,7 @@ jobs:
         with:
           fetch-depth: "0"
       - id: auto-tag
-        uses: cloud-tek/actions/auto-tag@0.8
+        uses: cloud-tek/actions/auto-release@0.9
         with:
           branch: main
       - name: setup gitversion
