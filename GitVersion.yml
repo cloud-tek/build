@@ -1,6 +1,6 @@
 mode: Mainline
 merge-message-formats:
-  ghmerge: ^Merge PR \#(?<PullRequestNumber>\d+)\ from (?<SourceBranch>.+) to (?<TargetBranch>.+)
+  ghmerge: ^Merge pull-request \#(?<PullRequestNumber>\d+)\ from (?<SourceBranch>.+) to (?<TargetBranch>.+)
 branches:
   master:
     regex: (^main$)
