@@ -14,11 +14,10 @@ namespace CloudTek.Build.Primitives
         Service
     }
 
-    public class Artifact
+    public class Artifact : RepositoryContent
     {
         public string Project { get; set; } = default!;
-        public string? Module { get; set;}
-        
+
         private string _path = default!;
 
         public string Path
@@ -71,16 +70,18 @@ namespace CloudTek.Build.Primitives
 
         public void Initialize(Repository repository)
         {
-            SetPaths(repository.SourceDirectory, repository.TestsDirectory);
+            SetPaths(repository);
             SetAssemblyName();
             SetVersionPrefix();
         }
 
-        private void SetPaths(AbsolutePath sourceDirectory, AbsolutePath testsDirectory)
+        private void SetPaths(Repository repository)
         {
             if (!string.IsNullOrEmpty(_path)) return;
 
-            _path = $"{sourceDirectory}/{Project}/{Project}.csproj";
+            _path = string.IsNullOrEmpty(Module)
+                ? $"{repository.SourceDirectory}/{Project}/{Project}.csproj"
+                : $"{repository.RootDirectory}/{Module}/src/{Project}/{Project}.csproj";
         }
 
         private void SetAssemblyName()
