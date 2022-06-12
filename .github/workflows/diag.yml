@@ -6,8 +6,8 @@ on:
     types: [opened, closed, reopened]
 
 jobs:
-  printJob:
-    name: Print event
+  diagnostics:
+    name: diagnostics
     runs-on: ubuntu-latest
     steps:
     - name: Dump GitHub context
