@@ -168,7 +168,7 @@ namespace CloudTek.Build
         protected Target UnitTests => _ => _
             .Executes(() =>
             {
-                Repository.DetectTests(Repository.TestsDirectory);
+                Repository.DetectTests();
                 Repository.Tests.Where(test => test.Type == TestType.UnitTests).ForEach(test =>
                 {
                     DotNetTest(s => ConfigureTestSettings(s, test,
@@ -179,7 +179,7 @@ namespace CloudTek.Build
         protected Target IntegrationTests => _ => _
             .Executes(() =>
             {
-                Repository.DetectTests(Repository.TestsDirectory);
+                Repository.DetectTests();
                 Repository.Tests.Where(test => test.Type == TestType.IntegrationTests).ForEach(test =>
                 {
                     DotNetTest(s => ConfigureTestSettings(s, test,
