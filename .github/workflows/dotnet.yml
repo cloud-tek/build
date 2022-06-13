@@ -158,7 +158,7 @@ jobs:
         if: success() || failure()
         with:
           name: XUnit Tests # Name of the check run which will be created
-          path: test/results/*.trx
+          path: tests/results/*.trx
           reporter: dotnet-trx # Format of test results
     # https://github.com/marketplace/actions/cobertura-report
     # - uses: 5monkeys/cobertura-action@master
