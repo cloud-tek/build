@@ -10,8 +10,20 @@ namespace CloudTek.Build.Primitives
 {
     public enum ArtifactType
     {
-        Package,
-        Service
+        /// <summary>
+        /// Artifact located in /src or /{module}/src that is going to be emitted as a NuGet package
+        /// </summary>
+        Package = 0,
+
+        /// <summary>
+        /// Artifact located in /src or /{module}/src that is going to be emitted as a container image
+        /// </summary>
+        Service,
+
+        /// <summary>
+        /// Artifact located in /demo or /{module}/demo that is going to be emitted as a container image
+        /// </summary>
+        Demo
     }
 
     public class Artifact : RepositoryContent
@@ -78,6 +90,13 @@ namespace CloudTek.Build.Primitives
         private void SetPaths(Repository repository)
         {
             if (!string.IsNullOrEmpty(_path)) return;
+
+            if (Type == ArtifactType.Demo)
+            {
+              _path = string.IsNullOrEmpty(Module)
+                ? $"{repository.DemoDirectory}/{Project}/{Project}.csproj"
+                : $"{repository.RootDirectory}/{Module}/demo/{Project}/{Project}.csproj";
+            }
 
             _path = string.IsNullOrEmpty(Module)
                 ? $"{repository.SourceDirectory}/{Project}/{Project}.csproj"

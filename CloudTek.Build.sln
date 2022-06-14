@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build", "src\Cloud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_build", "build\_build.csproj", "{BA02645E-6E5A-4D2C-AB9C-333CB44295A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tests", "test\CloudTek.Build.Tests\CloudTek.Build.Tests.csproj", "{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tests", "tests\CloudTek.Build.Tests\CloudTek.Build.Tests.csproj", "{E095D4D3-F7EC-4DA7-AF84-DAD3397361DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

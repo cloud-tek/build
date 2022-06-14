@@ -16,10 +16,11 @@ namespace CloudTek.Build
     public class Repository
     {
         public AbsolutePath RootDirectory { get; private set; } = default!;
-        
+
         public RepositoryMode Mode { get; set; }
         public virtual AbsolutePath SourceDirectory => RootDirectory / "src";
         public virtual AbsolutePath TestsDirectory => RootDirectory / "tests";
+        public virtual AbsolutePath DemoDirectory => RootDirectory / "demo";
         public virtual AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
         public virtual AbsolutePath PackagesDirectory => ArtifactsDirectory / "packages";
         public virtual AbsolutePath ServicesDirectory => ArtifactsDirectory / "services";
@@ -28,7 +29,7 @@ namespace CloudTek.Build
         public AbsolutePath TestCoverageDirectory => TestsDirectory / "coverage";
         public bool UseGitVersion { get; } = false; // disabled until valid pipeline tagging exists
         public Artifact[] Artifacts { get; set; } = default!;
-        
+
         public Test[] Tests { get; private set; } = default!;
 
         public void Initialize(AbsolutePath rootDirectory)
@@ -72,7 +73,7 @@ namespace CloudTek.Build
                 : Artifacts.Select(a => a.Module).SelectMany(module => (RootDirectory/module/"tests").GlobDirectories("*Test*"));
 
             var result = new List<Test>();
-            
+
             dirs.ForEach(dir =>
             {
                 var project = dir.GlobFiles("*.*sproj").FirstOrDefault();

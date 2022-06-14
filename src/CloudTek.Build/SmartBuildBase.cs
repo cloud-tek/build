@@ -23,7 +23,7 @@ namespace CloudTek.Build
     }
 
     public abstract class SmartBuild : NukeBuild
-    {        
+    {
         public readonly Repository Repository;
 
         protected readonly VersioningStrategy VersioningStrategy;
@@ -88,7 +88,7 @@ namespace CloudTek.Build
                         .SetProjectFile(artifact.Path)
                         .SetConfiguration(Configuration)
                         .Execute(settings => VersioningStrategy.SetDotNetBuildVersion(settings, this, artifact))
-                          
+
                         .SetProcessToolPath(DotNetTasks.DotNetPath));
                 });
             });
@@ -113,7 +113,7 @@ namespace CloudTek.Build
                         // .When(_repository.UseGitVersion, (settings) => settings
                         //     .SetVersion(GitVersion.NuGetVersionV2)
                         //     .SetFileVersion(GitVersion.AssemblySemFileVer)
-                        //     .SetAssemblyVersion(GitVersion.AssemblySemVer))                        
+                        //     .SetAssemblyVersion(GitVersion.AssemblySemVer))
                         .SetOutputDirectory(Repository.PackagesDirectory / artifact.Name)
                         //.EnableNoBuild()
                         .SetProcessToolPath(DotNetTasks.DotNetPath));
@@ -135,7 +135,7 @@ namespace CloudTek.Build
                         .Execute(settings => VersioningStrategy.SetDotNetNuGetPushVersion(settings, this, artifact))
                         // .When(_repository.UseGitVersion, (settings) => settings
                         //     .SetTargetPath(_repository.PackagesDirectory / artifact.Name /
-                        //                    $"{artifact.Name}.{GitVersion.NuGetVersionV2}.nupkg"))                        
+                        //                    $"{artifact.Name}.{GitVersion.NuGetVersionV2}.nupkg"))
                         .SetSource(NugetApiUrl)
                         .SetApiKey(NugetApiKey)
                         .SetSkipDuplicate(true)
@@ -148,7 +148,7 @@ namespace CloudTek.Build
         protected Target Publish => _ => _
             .Executes(() =>
             {
-                Repository.Artifacts.Where(a => a.Type == ArtifactType.Service).ForEach(artifact =>
+                Repository.Artifacts.Where(a => a.Type == ArtifactType.Service || a.Type == ArtifactType.Demo).ForEach(artifact =>
                 {
                     artifact.Initialize(Repository);
 
