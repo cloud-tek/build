@@ -96,6 +96,7 @@ namespace CloudTek.Build.Primitives
               _path = string.IsNullOrEmpty(Module)
                 ? $"{repository.DemoDirectory}/{Project}/{Project}.csproj"
                 : $"{repository.RootDirectory}/{Module}/demo/{Project}/{Project}.csproj";
+              return;
             }
 
             _path = string.IsNullOrEmpty(Module)
