@@ -11,7 +11,8 @@ namespace CloudTek.Build.Primitives
     public enum ArtifactType
     {
         Package,
-        Service
+        Service,
+        Demo
     }
 
     public class Artifact : RepositoryContent
