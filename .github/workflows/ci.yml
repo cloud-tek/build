@@ -39,11 +39,11 @@ jobs:
     name: build
     with:
       Directory: ${{ github.workspace }}
-      NetCoreVersion: 6.0.100
+      NetCoreVersion: 6.0.301
       Compile:      true
       UnitTests:    true
       Pack:         true
       Push:         true
-      NuGetApiUrl:  'https://nuget.pkg.github.com/cloud-tek/index.json'
+      NuGetApiUrl:  'https://api.nuget.org/v3/index.json'
     secrets:
-      NuGetApiKey:  '${{ secrets.GH_PAT }}'
+      NuGetApiKey:  '${{ secrets.NUGET_API_KEY }}'
