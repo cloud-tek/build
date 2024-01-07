@@ -16,7 +16,7 @@ Define a `SmartBuild` in one of the following ways:
 public class Build : SmartBuild<VersioningStrategy.Default>
 {
     public static int Main () => Execute<Build>(x => x.Compile);
-        
+
     public Build() : base(Repository)
     { }
 
@@ -38,17 +38,16 @@ public class Build : SmartBuild<VersioningStrategy.Default>
 
 ```bash
 dotnet tool restore
-dotnet nuke :add-package GitVersion.Tool --version 5.8.2
+dotnet nuke :add-package GitVersion.Tool --version 5.12.0
 ```
 
 #### Usage
 
 ```csharp
-[CheckBuildProjectConfigurations]
 public class Build : SmartGitVersionBuild
 {
     public static int Main () => Execute<Build>(x => x.Compile);
-        
+
     public Build() : base(Repository)
     { }
 

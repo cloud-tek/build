@@ -5,7 +5,7 @@ root = true
 charset = utf-8
 indent_style = space
 indent_size = 2
-insert_final_newline = true
+insert_final_newline = false
 trim_trailing_whitespace = true
 
 [*.md]
@@ -16,9 +16,12 @@ trim_trailing_whitespace = false
 charset = utf-8
 indent_style = space
 indent_size = 2
-insert_final_newline = true
 trim_trailing_whitespace = true
+
 [*.cs]
 trim_trailing_whitespace = true
 
 csharp_style_namespace_declarations = file_scoped
+
+[*.{cs,vb}]
+dotnet_diagnostic.CA1016.severity = none

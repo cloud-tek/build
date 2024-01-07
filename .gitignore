@@ -1,13 +1,14 @@
 .husky/
+.idea/
+.nuke/build.schema.json
+.nuke/temp
+
 node_modules/
 
 [Bb]in/
 [Oo]bj/
 *.log
-*.DotSettings
-
-.idea/
+*.DotSettings*
 
 artifacts/
-test/results/
-test/coverage/
+results/
