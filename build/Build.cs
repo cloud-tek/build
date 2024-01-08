@@ -9,7 +9,7 @@ using CloudTek.Build.Versioning;
 // ReSharper disable once CheckNamespace
 namespace _build;
 
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
+public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.GitVersion>
 {
   new static readonly Repository Repository = new()
   {
