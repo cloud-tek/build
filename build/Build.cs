@@ -16,7 +16,8 @@ public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default
     Artifacts = new Dictionary<string, ArtifactType>
       {
         { "CloudTek.Build", ArtifactType.Package },
-        { "CloudTek.Testing", ArtifactType.Package }
+        { "CloudTek.Testing", ArtifactType.Package },
+        { "CloudTek.Git", ArtifactType.Package }
       }
       .Select(x => new Artifact { Type = x.Value, Path = RootDirectory / "src" / x.Key / "*.*sproj" })
       .ToArray()

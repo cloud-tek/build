@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Testing", "src\CloudTek.Testing\CloudTek.Testing.csproj", "{9922F69E-6356-431C-B14C-4D75A8CAC916}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Git", "src\CloudTek.Git\CloudTek.Git.csproj", "{0356FE25-92CB-40ED-99B5-7468FBC5E103}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Git.Tests", "tests\CloudTek.Git.Tests\CloudTek.Git.Tests.csproj", "{D2584BD5-61CB-4017-9901-4762648761BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{9922F69E-6356-431C-B14C-4D75A8CAC916}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9922F69E-6356-431C-B14C-4D75A8CAC916}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9922F69E-6356-431C-B14C-4D75A8CAC916}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0356FE25-92CB-40ED-99B5-7468FBC5E103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0356FE25-92CB-40ED-99B5-7468FBC5E103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0356FE25-92CB-40ED-99B5-7468FBC5E103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0356FE25-92CB-40ED-99B5-7468FBC5E103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2584BD5-61CB-4017-9901-4762648761BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2584BD5-61CB-4017-9901-4762648761BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2584BD5-61CB-4017-9901-4762648761BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2584BD5-61CB-4017-9901-4762648761BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
