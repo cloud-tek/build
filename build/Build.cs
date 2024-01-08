@@ -5,12 +5,19 @@ using CloudTek.Build;
 using CloudTek.Build.Packaging;
 using CloudTek.Build.Primitives;
 using CloudTek.Build.Versioning;
+using Nuke.Common.Tools.GitVersion;
 
 // ReSharper disable once CheckNamespace
 namespace _build;
 
 public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.GitVersion>
 {
+  /// <summary>
+  /// GitVersion information for SmartBuild
+  /// </summary>
+  [GitVersion(Framework = "net8.0", NoFetch = true)]
+  public GitVersion GitVersion { get; set; } = default!;
+
   new static readonly Repository Repository = new()
   {
     Artifacts = new Dictionary<string, ArtifactType>
