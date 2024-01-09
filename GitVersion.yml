@@ -10,7 +10,7 @@ branches:
   release:
     regex: ^release[/-]
     mode: ContinuousDeployment
-    tag: pre
+    tag: beta
     source-branches:
     - main
     increment: None
