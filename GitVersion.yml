@@ -22,11 +22,11 @@ branches:
     pre-release-weight: 30000
   feature:
     regex: ^feature?[/-]
-    tag: useBranchName
+    tag: beta
     increment: Minor
   bug:
     regex: ^bug[/-]
-    tag: useBranchName
+    tag: beta
     increment: Patch
     source-branches: ["main"]
   chore:
