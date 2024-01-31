@@ -1,4 +1,3 @@
-using CloudTek.Git;
 using CloudTek.Testing;
 using FluentAssertions;
 using Xunit;
