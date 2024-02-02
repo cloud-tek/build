@@ -1,19 +1,32 @@
-using System;
+#pragma warning disable CA2211,MA0069
 using System.ComponentModel;
-using System.Linq;
 using Nuke.Common.Tooling;
 
-namespace CloudTek.Build
+namespace CloudTek.Build;
+
+/// <summary>
+/// An enumeration of possible build configurations
+/// </summary>
+[TypeConverter(typeof(TypeConverter<Configuration>))]
+public class Configuration : Enumeration
 {
-    [TypeConverter(typeof(Enumeration.TypeConverter<Configuration>))]
-    public class Configuration : Enumeration
-    {
-        public static Configuration Debug = new Configuration { Value = nameof(Debug) };
-        public static Configuration Release = new Configuration { Value = nameof(Release) };
+  /// <summary>
+  /// Debug build configuration
+  /// </summary>
+  public static Configuration Debug = new() { Value = nameof(Debug) };
 
-        public static implicit operator string(Configuration configuration)
-        {
-            return configuration.Value;
-        }
+  /// <summary>
+  /// Release build configuration
+  /// </summary>
+  public static Configuration Release = new() { Value = nameof(Release) };
 
-}}
+  /// <summary>
+  ///  Implicit conversion from string to Configuration
+  /// </summary>
+  /// <param name="configuration"></param>
+  public static implicit operator string(Configuration configuration)
+  {
+    return configuration.Value;
+  }
+}
+#pragma warning restore CA2211, MA0069

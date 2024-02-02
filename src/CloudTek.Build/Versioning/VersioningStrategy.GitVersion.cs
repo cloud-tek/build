@@ -1,59 +1,70 @@
-using System;
 using CloudTek.Build.Primitives;
 using Nuke.Common.Tools.DotNet;
 
-namespace CloudTek.Build.Versioning
+namespace CloudTek.Build.Versioning;
+
+/// <summary>
+/// Abstract versioning strategy for SmartBuild
+/// </summary>
+public abstract partial class VersioningStrategy
 {
-    public abstract partial class VersioningStrategy
+  /// <summary>
+  /// GitVersion versioning strategy for SmartBuild
+  /// </summary>
+  public class GitVersion : VersioningStrategy
+  {
+    internal override Func<DotNetPublishSettings, SmartBuild, Project, DotNetPublishSettings>
+      SetDotNetPublishVersion
+    { get; } = (settings, build, project) =>
     {
-        public class GitVersion : VersioningStrategy
-        {
-            public override Func<DotNetBuildSettings, SmartBuild, Artifact, DotNetBuildSettings> SetDotNetBuildVersion
-            {
-                get;
-            } = (settings, build, artifact) =>
-            {
-                var bld = (SmartGitVersionBuild)build;
+      var gv = GetGitVersion(build);
 
-                return settings
-                    .SetVersion(bld.GitVersion.NuGetVersionV2)
-                    .SetFileVersion(bld.GitVersion.AssemblySemFileVer)
-                    .SetAssemblyVersion(bld.GitVersion.AssemblySemVer);
-            };
+      return settings
+        .SetVersion(gv.NuGetVersionV2)
+        .SetFileVersion(gv.AssemblySemFileVer)
+        .SetAssemblyVersion(gv.AssemblySemVer);
+    };
 
-            public override Func<DotNetPublishSettings, SmartBuild, Artifact, DotNetPublishSettings>
-                SetDotNetPublishVersion { get; } = (settings, build, artifact) =>
-            {
-                var bld = (SmartGitVersionBuild)build;
+    internal override Func<DotNetPackSettings, SmartBuild, Project, DotNetPackSettings> SetDotNetPackVersion { get; }
+      = (settings, build, project) =>
+      {
+        var gv = GetGitVersion(build);
 
-                return settings
-                    .SetVersion(bld.GitVersion.NuGetVersionV2)
-                    .SetFileVersion(bld.GitVersion.AssemblySemFileVer)
-                    .SetAssemblyVersion(bld.GitVersion.AssemblySemVer);
-            };
+        return settings
+          .SetVersion(gv.NuGetVersionV2)
+          .SetFileVersion(gv.AssemblySemFileVer)
+          .SetAssemblyVersion(gv.AssemblySemVer);
+      };
 
-            public override Func<DotNetPackSettings, SmartBuild, Artifact, DotNetPackSettings> SetDotNetPackVersion
-            {
-                get;
-            } = (settings, build, artifact) =>
-            {
-                var bld = (SmartGitVersionBuild)build;
+    internal override Func<DotNetNuGetPushSettings, SmartBuild, Project, DotNetNuGetPushSettings>
+      SetDotNetNuPkgPath
+    { get; } = (settings, build, project) => GetPushSettings(settings, build, project, "nupkg");
 
-                return settings
-                    .SetVersion(bld.GitVersion.NuGetVersionV2)
-                    .SetFileVersion(bld.GitVersion.AssemblySemFileVer)
-                    .SetAssemblyVersion(bld.GitVersion.AssemblySemVer);
-            };
+    private static DotNetNuGetPushSettings GetPushSettings(
+      DotNetNuGetPushSettings settings,
+      SmartBuild build,
+      Project project,
+      string format)
+    {
+      var gv = GetGitVersion(build);
 
-            public override Func<DotNetNuGetPushSettings, SmartBuild, Artifact, DotNetNuGetPushSettings>
-                SetDotNetNuGetPushVersion { get; } = (settings, build, artifact) =>
-            {
-                var bld = (SmartGitVersionBuild)build;
-
-                return settings
-                    .SetTargetPath(bld.Repository.PackagesDirectory / artifact.Name /
-                                   $"{artifact.Name}.{bld.GitVersion.NuGetVersionV2}.nupkg");
-            };
-        };
+      return settings
+        .SetTargetPath(build.Repository.PackagesDirectory / project.Name /
+                       $"{project.Name}.{gv.NuGetVersionV2}.{format}");
     }
+
+    private static Nuke.Common.Tools.GitVersion.GitVersion GetGitVersion(SmartBuild build)
+    {
+      var t = build.GetType();
+
+      var propInfo = t.GetProperty("GitVersion")
+                     ?? throw new InvalidOperationException(
+                       "SmartBuild does not contain a GitVersion property");
+
+      var result = propInfo.GetValue(build) as Nuke.Common.Tools.GitVersion.GitVersion;
+
+      return result ?? throw new InvalidOperationException(
+        "GitVersion property does not contain a valid Nuke.Common.Tools.GitVersion.GitVersion object");
+    }
+  }
 }

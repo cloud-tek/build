@@ -1,7 +1,7 @@
 name: ci
 
 env:
-  NETCORE_VERSION: 6.0.100
+  NETCORE_VERSION: 8.0.100
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
   DOTNET_ROLL_FORWARD: Major
 
@@ -14,6 +14,7 @@ on:
       - ".github/workflows/**"
       - "build/**"
       - "src/**"
+      - "tests/**"
       - "readme.md"
       - "GitVersion.yml"
   pull_request:
@@ -32,14 +33,16 @@ on:
 
 jobs:
   diag:
-    uses: cloud-tek/build/.github/workflows/gitversion.yml@main
+    uses: ./.github/workflows/gitversion.yml
     name: diag
   build:
-    uses: cloud-tek/build/.github/workflows/dotnet.yml@main
+    uses: ./.github/workflows/dotnet.yml
     name: build
+    permissions:
+      checks: write
     with:
       Directory: ${{ github.workspace }}
-      NetCoreVersion: 6.0.301
+      NetCoreVersion: 8.0.100
       Compile:      true
       UnitTests:    true
       Pack:         true
