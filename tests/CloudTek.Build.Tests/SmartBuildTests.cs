@@ -22,36 +22,4 @@ public class SmartBuildTests : TestBuildFixture
       .WriteTo.TestOutput(output, Serilog.Events.LogEventLevel.Verbose, formatProvider: CultureInfo.InvariantCulture)
       .CreateLogger();
   }
-
-  // [Fact]
-  // public void GivenSmartBuild_WhenInitialized_ThenArtifactsProjectsAreResolved()
-  // {
-  //   var sut = InitializeTestBuild();
-  //   var repository = ((SmartBuild)sut).Repository;
-  //
-  //   repository.Artifacts.ForEach(
-  //     a =>
-  //     {
-  //       a.Projects.Should().NotBeNullOrEmpty();
-  //       a.Projects.ForEach(
-  //         project =>
-  //         {
-  //           project.Path.Exists("file").Should().BeTrue();
-  //         });
-  //     });
-  // }
-  //
-  // [Fact]
-  // public void GivenSmartBuild_WhenInitialized_ThenTestProjectsAreResolved()
-  // {
-  //   var sut = InitializeTestBuild();
-  //   var repository = ((SmartBuild)sut).Repository;
-  //
-  //   repository.Tests.ForEach(
-  //     a =>
-  //     {
-  //       a.Project.Should().NotBeNull();
-  //       a.Project.Exists("file").Should().BeTrue();
-  //     });
-  // }
 }
