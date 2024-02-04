@@ -34,18 +34,6 @@ on:
     inputs: {}
 
 jobs:
-  # pre-merge:
-  #   if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #     with:
-  #       fetch-depth: "0"
-  #   - id: auto-release
-  #     uses: cloud-tek/actions/auto-tag@0.12
-  #     with:
-  #       branch: main
-
   build:
     if: (github.event_name == 'pull_request' && github.event.pull_request.merged == false) || (github.event_name == 'push')
     uses: ./.github/workflows/dotnet.yml
