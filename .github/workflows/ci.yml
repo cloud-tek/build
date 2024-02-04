@@ -3,39 +3,46 @@ name: ci
 env:
   NETCORE_VERSION: 8.0.100
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-  DOTNET_ROLL_FORWARD: Major
+  DOTNET_ROLL_FORWARD: Minor
 
 on:
-  push:
-    branches:
-    - main
-    - release/*
-    paths:
-      - ".github/workflows/**"
-      - "build/**"
-      - "src/**"
-      - "tests/**"
-      - "readme.md"
-      - "GitVersion.yml"
   pull_request:
     types:
     - closed
     branches:
     - main
-    paths:
-      - ".github/workflows/**"
-      - "build/**"
-      - "src/**"
-      - "readme.md"
-      - "GitVersion.yml"
+    paths: &paths
+    - ".github/workflows/**"
+    - "build/**"
+    - "src/**"
+    - "tests/**"
+    - "GitVersion.yml"
+  push:
+    branches:
+    - main
+    - feature/*
+    - hotfix/*
+    - bug/*
+    - release/*
+    paths: *paths
   workflow_dispatch:
     inputs: {}
 
 jobs:
-  diag:
-    uses: ./.github/workflows/gitversion.yml
-    name: diag
+  # pre-merge:
+  #   if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       fetch-depth: "0"
+  #   - id: auto-release
+  #     uses: cloud-tek/actions/auto-tag@0.12
+  #     with:
+  #       branch: main
+
   build:
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == false) || (github.event_name == 'push')
     uses: ./.github/workflows/dotnet.yml
     name: build
     permissions:

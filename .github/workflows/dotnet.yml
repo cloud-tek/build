@@ -1,10 +1,5 @@
 name: "dotnet.yml (reusable)"
 
-# # env:
-# #   NETCORE_VERSION: 6.0.100
-# #   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-# #   DOTNET_ROLL_FORWARD: Major
-
 on:
   workflow_call:
     secrets:
@@ -77,11 +72,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: "0"
-      - id: auto-release
-        uses: cloud-tek/actions/auto-release@0.12
+      - id: auto-tag
+        if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        uses: cloud-tek/actions/auto-tag@0.12
         with:
           branch: main
-          configuration: .config/configuration.changelog.json
       - name: setup gitversion
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
