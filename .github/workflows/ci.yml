@@ -11,7 +11,7 @@ on:
     - closed
     branches:
     - main
-    paths: &paths
+    paths:
     - ".github/workflows/**"
     - "build/**"
     - "src/**"
@@ -24,7 +24,12 @@ on:
     - hotfix/*
     - bug/*
     - release/*
-    paths: *paths
+    paths:
+    - ".github/workflows/**"
+    - "build/**"
+    - "src/**"
+    - "tests/**"
+    - "GitVersion.yml"
   workflow_dispatch:
     inputs: {}
 
