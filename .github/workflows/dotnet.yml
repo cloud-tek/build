@@ -86,7 +86,6 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            if(github.event !== undefined)
             console.log(JSON.stringify(github.event, null, 2));
       - shell: bash
         name: git tag
