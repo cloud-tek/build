@@ -82,11 +82,11 @@ jobs:
         run: |
           echo "github.ref: ${{ github.ref }}"
           echo "github.event_name: ${{ github.event_name }}"
-      - name: debug github.event
-        uses: actions/github-script@v5
-        with:
-          script: |
-            console.log(JSON.stringify(github.event, null, 2));
+      - name: debug github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
       - shell: bash
         name: git tag
         if: |
