@@ -6,6 +6,9 @@ on:
       NuGetApiKey:
         description: "NuGet API Key"
         required: false
+      GitHubToken:
+        description: "NuGet API Key"
+        required: true
     inputs:
       Directory:
         description: "Project directory"
@@ -72,6 +75,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: "0"
+          token: ${{ secrets.GitHubToken }}
       # todo: restore
       # - id: auto-tag
       #   if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
