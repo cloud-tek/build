@@ -34,7 +34,7 @@ on:
     inputs: {}
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   checks: write
 
