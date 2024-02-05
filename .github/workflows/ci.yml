@@ -33,6 +33,11 @@ on:
   workflow_dispatch:
     inputs: {}
 
+permissions:
+  contents: write
+  actions: read
+  checks: write
+
 jobs:
   build:
     if: (github.event_name == 'pull_request') || (github.event_name == 'push')
