@@ -3,11 +3,11 @@ name: "dotnet.yml (reusable)"
 on:
   workflow_call:
     secrets:
-      NuGetApiKey:
+      NUGET_API_KEY:
         description: "NuGet API Key"
         required: false
-      GitHubToken:
-        description: "NuGet API Key"
+      GITHUB_TOKEN:
+        description: "GitHub Token"
         required: true
     inputs:
       Directory:
@@ -188,7 +188,7 @@ jobs:
         if: ${{ inputs.Push && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NuGetApiKey }}
+          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
       - shell: bash
         name: gh release create
         if: |
@@ -197,8 +197,9 @@ jobs:
           github.event.action == 'closed' &&
           github.event.pull_request.merged == true
         env:
-          GH_TOKEN: ${{ secrets.GitHubToken }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          printenv
           BRANCH="${{ github.event.pull_request.head.ref }}"
           if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
           then
