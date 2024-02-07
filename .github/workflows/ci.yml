@@ -53,5 +53,5 @@ jobs:
       Push:         true
       NuGetApiUrl:  'https://api.nuget.org/v3/index.json'
     secrets:
-      GitHubToken:  '${{ secrets.GITHUB_TOKEN }}'
+      GitHubToken:  '${{ github.token }}'
       NuGetApiKey:  '${{ secrets.NUGET_API_KEY }}'
