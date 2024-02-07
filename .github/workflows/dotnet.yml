@@ -206,18 +206,6 @@ jobs:
           else
             echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
           fi
-      # - name: dotnet nuke ModuleTests
-      #   shell: bash
-      #   if: ${{ inputs.ModuleTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke --target ModuleTests --skip Compile RunChecks
-      # - name: dotnet nuke SystemTests
-      #   shell: bash
-      #   if: ${{ inputs.SystemTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke SystemTests
       # https://github.com/marketplace/actions/test-reporter
     # https://github.com/marketplace/actions/cobertura-report
     # - uses: 5monkeys/cobertura-action@master
@@ -232,13 +220,13 @@ jobs:
       #   with:
       #     branch: main
 
-      - shell: bash
-        name: git config
-        if: |
-          github.ref == 'refs/heads/main' &&
-          github.event_name == 'pull_request' &&
-          github.event.action == 'closed' &&
-          github.event.pull_request.merged == true
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+      # - shell: bash
+      #   name: git config
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
