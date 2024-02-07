@@ -197,7 +197,7 @@ jobs:
           github.event.action == 'closed' &&
           github.event.pull_request.merged == true
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           printenv
           BRANCH="${{ github.event.pull_request.head.ref }}"
