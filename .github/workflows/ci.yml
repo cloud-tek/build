@@ -35,15 +35,13 @@ on:
 
 permissions:
   contents: write
-  # checks: write
+  checks: write
 
 jobs:
   build:
     if: (github.event_name == 'pull_request') || (github.event_name == 'push')
     uses: ./.github/workflows/dotnet.yml
     name: build
-    permissions:
-      checks: write
     with:
       Directory: ${{ github.workspace }}
       NetCoreVersion: 8.0.100
