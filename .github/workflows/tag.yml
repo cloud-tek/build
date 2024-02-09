@@ -1,7 +1,7 @@
 
 #
 # based on: https://github.com/marketplace/actions/release-changelog-builder
-name: "release"
+name: "tag"
 on:
   push:
     tags:
