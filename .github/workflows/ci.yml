@@ -51,4 +51,5 @@ jobs:
       Push:         true
       NuGetApiUrl:  'https://api.nuget.org/v3/index.json'
     secrets:
+      GH_TOKEN:       '${{ secrets.CLOUDTEK_AUTOMATION_TOKEN }}'
       NUGET_API_KEY:  '${{ secrets.NUGET_API_KEY }}'
