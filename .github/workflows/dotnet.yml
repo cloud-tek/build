@@ -86,26 +86,35 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-      - shell: bash
-        name: git tag
+      - id: auto-tag
         if: |
           github.ref == 'refs/heads/main' &&
           github.event_name == 'pull_request' &&
           github.event.action == 'closed' &&
           github.event.pull_request.merged == true
-        run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-          then
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-            git tag "${BASH_REMATCH[3]}" --force
-            if [[ ${{ inputs.push }} == "true" ]]
-            then
-              git push origin "${BASH_REMATCH[3]}" --force
-            fi
-          else
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-          fi
+        uses: cloud-tek/actions/auto-tag@0.12
+        with:
+          branch: refs/heads/main
+      # - shell: bash
+      #   name: git tag
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   run: |
+      #     BRANCH="${{ github.event.pull_request.head.ref }}"
+      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+      #     then
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+      #       git tag "${BASH_REMATCH[3]}" --force
+      #       if [[ ${{ inputs.push }} == "true" ]]
+      #       then
+      #         git push origin "${BASH_REMATCH[3]}" --force
+      #       fi
+      #     else
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+      #     fi
       - name: setup gitversion
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
