@@ -19,7 +19,6 @@ on:
     - "GitVersion.yml"
   push:
     branches:
-    - main
     - feature/*
     - hotfix/*
     - bug/*
@@ -39,7 +38,6 @@ permissions:
 
 jobs:
   build:
-    if: (github.event_name == 'pull_request') || (github.event_name == 'push')
     uses: ./.github/workflows/dotnet.yml
     name: build
     with:
