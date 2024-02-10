@@ -3,10 +3,13 @@ merge-message-formats:
   ghmerge: ^Merge pull-request \#(?<PullRequestNumber>\d+)\ from (?<SourceBranch>.+) to (?<TargetBranch>.+)
 branches:
   master:
-    regex: (^main$)
+    regex: ^(main|master)$
     tag: ""
     increment: Patch
-    is-release-branch: true
+    is-release-branch: false
+    is-mainline: true
+    prevent-increment-of-merged-branch-version: true
+    pre-release-weight: 55000
   release:
     regex: ^release[/-]
     mode: ContinuousDeployment
@@ -22,11 +25,16 @@ branches:
     pre-release-weight: 30000
   feature:
     regex: ^feature?[/-]
-    tag: beta
+    prevent-increment-of-merged-branch-version: true
+    tag: alpha
     increment: Minor
+    tracks-release-branches: false
+    is-release-branch: true
+    is-mainline: false
+    pre-release-weight: 30000
   bug:
     regex: ^bug[/-]
-    tag: beta
+    tag: alpha
     increment: Patch
     source-branches: ["main"]
   chore:
