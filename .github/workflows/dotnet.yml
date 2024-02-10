@@ -76,16 +76,23 @@ jobs:
         with:
           fetch-depth: "0"
       - shell: bash
-        name: debug
-        run: |
-          echo "github.ref: ${{ github.ref }}"
-          echo "github.event_name: ${{ github.event_name }}"
-      - name: debug github context
+        name: gh release create
+        if: |
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
         env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "$GITHUB_CONTEXT"
-
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+          then
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+            gh release create ${BASH_REMATCH[3]} --title "Release ${BASH_REMATCH[3]}"
+          else
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+          fi
       - name: setup gitversion
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
@@ -97,36 +104,6 @@ jobs:
         name: dotnet installer
         with:
           dotnet-version: ${{ inputs.NetCoreVersion }}
-      # - name: nuget.config (pwsh)
-      #   shell: pwsh
-      #   run: |
-      #     $nuget = @"
-      #     <?xml version="1.0" encoding="utf-8"?>
-      #     <configuration>
-      #       <packageSources>
-      #         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-      #         <add key="nuget.cloudtek.io" value="${{ secrets.NuGetFeedCloudTek }}" protocolVersion="3"/>
-      #       </packageSources>
-      #       <packageRestore>
-      #         <add key="enabled" value="True" />
-      #         <add key="automatic" value="True" />
-      #       </packageRestore>
-      #       <bindingRedirects>
-      #         <add key="skip" value="False" />
-      #       </bindingRedirects>
-      #       <packageManagement>
-      #         <add key="format" value="0" />
-      #         <add key="disabled" value="False" />
-      #       </packageManagement>
-      #       <packageSourceCredentials>
-      #         <nuget.cloudtek.io>
-      #           <add key="Username" value="${{ secrets.NuGetUsername }}"/>
-      #           <add key="ClearTextPassword" value="${{ secrets.NuGetPassword }}" />
-      #         </nuget.cloudtek.io>
-      #       </packageSourceCredentials>
-      #     </configuration>
-      #     "@
-      #     $nuget | Out-File -FilePath ${{ github.workspace }}/nuget.config
       - name: global.json
         if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         shell: bash
@@ -189,21 +166,3 @@ jobs:
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
-      - shell: bash
-        name: gh release create
-        if: |
-          github.ref == 'refs/heads/main' &&
-          github.event_name == 'pull_request' &&
-          github.event.action == 'closed' &&
-          github.event.pull_request.merged == true
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-          then
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-            gh release create ${BASH_REMATCH[3]} --title "Release ${BASH_REMATCH[3]}"
-          else
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-          fi
