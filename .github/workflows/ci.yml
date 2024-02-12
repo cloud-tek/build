@@ -17,6 +17,9 @@ on:
   #   - "src/**"
   #   - "tests/**"
   #   - "GitVersion.yml"
+  release:
+    types:
+    - created
   push:
     branches:
     - main
