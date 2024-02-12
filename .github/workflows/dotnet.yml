@@ -86,15 +86,15 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-      # - id: auto-tag
-      #   if: |
-      #     github.ref == 'refs/heads/main' &&
-      #     github.event_name == 'pull_request' &&
-      #     github.event.action == 'closed' &&
-      #     github.event.pull_request.merged == true
-      #   uses: cloud-tek/actions/auto-tag@0.12
-      #   with:
-      #     branch: refs/heads/main
+      - id: auto-tag
+        if: |
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        uses: cloud-tek/actions/auto-tag@0.12
+        with:
+          branch: refs/heads/main
       # - shell: bash
       #   name: git tag
       #   if: |
