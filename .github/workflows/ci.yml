@@ -6,23 +6,19 @@ env:
   DOTNET_ROLL_FORWARD: Minor
 
 on:
-  # pull_request:
-  #   types:
-  #   - closed
-  #   branches:
-  #   - main
-  #   paths:
-  #   - ".github/workflows/**"
-  #   - "build/**"
-  #   - "src/**"
-  #   - "tests/**"
-  #   - "GitVersion.yml"
-  release:
+  pull_request:
     types:
-    - created
-  push:
+    - closed
     branches:
     - main
+    paths:
+    - ".github/workflows/**"
+    - "build/**"
+    - "src/**"
+    - "tests/**"
+    - "GitVersion.yml"
+  push:
+    branches:
     - feature/*
     - hotfix/*
     - bug/*
