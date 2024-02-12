@@ -1,5 +1,4 @@
 name: "dotnet.yml (reusable)"
-
 on:
   workflow_call:
     secrets:
