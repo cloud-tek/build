@@ -6,7 +6,7 @@ namespace CloudTek.Testing
   /// Attribute used to mark a test as an system acceptance test.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-  [TraitDiscoverer(SmokeTestDiscoverer.TypeName, AssemblyInfo.Name)]
+  [TraitDiscoverer(SystemTestDiscoverer.TypeName, AssemblyInfo.Name)]
   // ReSharper disable once ClassNeverInstantiated.Global
   public class SystemTestAttribute : Attribute, ITraitAttribute
   {
