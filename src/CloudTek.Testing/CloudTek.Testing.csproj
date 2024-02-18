@@ -12,5 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="xunit" Version="2.6.4" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
   </ItemGroup>
 </Project>

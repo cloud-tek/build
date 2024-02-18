@@ -122,7 +122,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// <summary>
   /// Regex used to match packages used in pre-build checks
   /// </summary>
-  public virtual Regex PackageChecksRegex { get; init; } = new("^(CloudTek|Hive)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+  public virtual Regex PackageChecksRegex { get; init; } = new("^(CloudTek|CloudTek)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 #pragma warning restore MA0009
 
   /// <summary>
