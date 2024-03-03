@@ -56,7 +56,6 @@ public abstract partial class SmartBuild : NukeBuild
     sb.Append("--no-restore ");
     sb.Append(CultureInfo.InvariantCulture, $"./{Solution.FileName}");
 
-
     DotNet(sb.ToString().TrimEnd(), Solution.Directory);
   }
 
@@ -68,7 +67,6 @@ public abstract partial class SmartBuild : NukeBuild
 
     sb.Append("--no-restore ");
     sb.Append(CultureInfo.InvariantCulture, $"./{Solution.FileName}");
-
 
     DotNet(sb.ToString().TrimEnd(), Solution.Directory);
   }
