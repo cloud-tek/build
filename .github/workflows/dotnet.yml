@@ -94,12 +94,6 @@ jobs:
         uses: cloud-tek/actions/auto-tag@0.12
         with:
           branch: refs/heads/main
-      - name: setup gitversion
-        uses: gittools/actions/gitversion/setup@v0.9.7
-        with:
-          versionSpec: '5.x'
-      - name: run giversion
-        uses: gittools/actions/gitversion/execute@v0.9.7
       - uses: actions/setup-dotnet@v1
         if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         name: dotnet installer
@@ -114,6 +108,12 @@ jobs:
           else
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
           fi
+      - name: setup gitversion
+        uses: gittools/actions/gitversion/setup@v0.12.1
+        with:
+          versionSpec: '5.x'
+      - name: run giversion
+        uses: gittools/actions/gitversion/execute@v0.12.1
       - run: |
           dotnet nuget list source
           dotnet tool restore
