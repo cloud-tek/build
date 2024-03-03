@@ -17,6 +17,7 @@ on:
     - "src/**"
     - "tests/**"
     - "GitVersion.yml"
+    - "global.json"
   push:
     branches:
     - feature/*
