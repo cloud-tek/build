@@ -59,6 +59,6 @@ internal static class TargetDefinitionExtensions
     return shouldSkip;
   }
 
-  internal static ITargetDefinition BaseTarget(this ITargetDefinition definition, string targetName, NukeBuild build) =>
+  internal static ITargetDefinition RegisterTarget(this ITargetDefinition definition, string targetName, NukeBuild build) =>
       definition.OnlyWhenStatic(() => !ShouldSkipTarget(targetName, build.InvokedTargets.Select(p => p.Name).ToList()));
 }

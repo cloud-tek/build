@@ -32,7 +32,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target Clean
   /// </summary>
   protected virtual Target Clean => _ => _
-    .BaseTarget(nameof(Clean), this)
+    .RegisterTarget(nameof(Clean), this)
     .Executes(() =>
     {
       Repository.ArtifactsDirectory.CreateOrCleanDirectory();
@@ -53,7 +53,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target Compile
   /// </summary>
   protected virtual Target Compile => _ => _
-    .BaseTarget(nameof(Compile), this)
+    .RegisterTarget(nameof(Compile), this)
     .DependsOn(Restore)
     .Executes(() =>
     {
@@ -70,7 +70,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target All
   /// </summary>
   protected virtual Target All => _ => _
-    .BaseTarget(nameof(All), this)
+    .RegisterTarget(nameof(All), this)
     .DependsOn(Pack, Publish)
     .Executes(() =>
     {
@@ -81,7 +81,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target Publish
   /// </summary>
   protected virtual Target Publish => _ => _
-    .BaseTarget(nameof(Publish), this)
+    .RegisterTarget(nameof(Publish), this)
     .DependsOn(Test)
     .WhenSkipped(DependencyBehavior.Execute)
     .Executes(() =>

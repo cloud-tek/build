@@ -10,7 +10,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// Installs Husky.NET
   /// </summary>
   protected virtual Target HuskyInstall => _ => _
-    .BaseTarget(nameof(HuskyInstall), this)
+    .RegisterTarget(nameof(HuskyInstall), this)
     .Executes(() =>
     {
       DotNet(string.Join(' ', HuskyInstallArgs), Solution.Directory);
@@ -36,7 +36,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// A meta-target aggregating all pre-build checks
   /// </summary>
   protected virtual Target RunChecks => _ => _
-    .BaseTarget(nameof(RunChecks), this)
+    .RegisterTarget(nameof(RunChecks), this)
     .DependsOn(CommitLintCheck, FormatCheck, PackagesBetaCheck, PackagesOutdatedCheck)
     .Before(UnitTests)
     .WhenSkipped(DependencyBehavior.Skip)
@@ -47,7 +47,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// Executes Husky.NET to check the commit message
   /// </summary>
   protected virtual Target CommitLintCheck => _ => _
-    .BaseTarget(nameof(CommitLintCheck), this)
+    .RegisterTarget(nameof(CommitLintCheck), this)
     .DependsOn(HuskyInstall)
     .Executes(() =>
     {
@@ -62,7 +62,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// Uses the PackageManager to check the solution for BETA packages
   /// </summary>
   protected internal virtual Target PackagesBetaCheck => _ => _
-    .BaseTarget(nameof(PackagesBetaCheck), this)
+    .RegisterTarget(nameof(PackagesBetaCheck), this)
     .DependsOn(BuildDependencyTree)
     .Executes(() => { PackageManager.CheckBetaPackages(this); });
 
@@ -71,7 +71,7 @@ public abstract partial class SmartBuild : NukeBuild
   /// Uses the PackageManager to check the solution for OUTDATED packages
   /// </summary>
   protected internal virtual Target PackagesOutdatedCheck => _ => _
-    .BaseTarget(nameof(PackagesOutdatedCheck), this)
+    .RegisterTarget(nameof(PackagesOutdatedCheck), this)
     .DependsOn(BuildDependencyTree)
     .Executes(() => { PackageManager.CheckOutdatedPackages(this); });
 }
