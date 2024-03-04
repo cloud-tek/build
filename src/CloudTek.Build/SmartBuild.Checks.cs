@@ -38,6 +38,7 @@ public abstract partial class SmartBuild : NukeBuild
   protected virtual Target RunChecks => _ => _
     .BaseTarget(nameof(RunChecks), this)
     .DependsOn(CommitLintCheck, FormatCheck, PackagesBetaCheck, PackagesOutdatedCheck)
+    .Before(UnitTests)
     .WhenSkipped(DependencyBehavior.Skip)
     .Executes(() => { Log.Information("All checks executed..."); });
 

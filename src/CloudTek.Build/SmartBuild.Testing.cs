@@ -43,6 +43,7 @@ public abstract partial class SmartBuild
   protected virtual Target UnitTests => _ => _
     .BaseTarget(nameof(UnitTests), this)
     .DependsOn(Compile)
+    .Before(IntegrationTests)
     .OnlyWhenDynamic(() => !SkipUnitTests)
     .WhenSkipped(DependencyBehavior.Skip)
     .Executes(() =>
