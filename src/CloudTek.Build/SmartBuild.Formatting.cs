@@ -12,7 +12,8 @@ public abstract partial class SmartBuild : NukeBuild
   /// Executes dotnet format against the solution
   /// </summary>
   protected virtual Target Format => _ => _
-    .DependsOn(Format)
+    .BaseTarget(nameof(Format), this)
+    .DependsOn(Restore)
     .Executes(() =>
     {
       FormatInternal(false);
