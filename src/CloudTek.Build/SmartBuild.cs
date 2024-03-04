@@ -6,6 +6,8 @@ using CloudTek.Build.Versioning;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Utilities.Collections;
+using Serilog;
 
 namespace CloudTek.Build;
 
@@ -106,6 +108,27 @@ public abstract partial class SmartBuild : NukeBuild
   : this(repository, packageManager, versioningStrategy)
   {
     Solution = solutionProvider() ?? throw new ArgumentNullException(nameof(solutionProvider));
+  }
+
+  /// <summary>
+  /// OnBuildInitialized override
+  /// </summary>
+  protected override void OnBuildInitialized()
+  {
+    base.OnBuildInitialized();
+
+    Repository
+      .Artifacts
+      .ForEach(artifact =>
+      {
+        artifact.Initialize();
+      });
+
+    Repository.DetectTests(this);
+
+    Log.Information("IsLocalBuild: {IsLocalBuild}", IsLocalBuild);
+
+    TargetDefinitionExtensions.PrintTargetsToSkip();
   }
 
   /// <summary>

@@ -32,7 +32,8 @@ public abstract partial class SmartBuild
   /// Executes all test targets against the solution
   /// </summary>
   protected virtual Target Test => _ => _
-    .DependsOn(UnitTests, IntegrationTests)
+    .BaseTarget(nameof(Test), this)
+    .DependsOn(UnitTests, IntegrationTests, RunChecks)
     .Executes(() => { });
 
   /// <summary>
@@ -40,7 +41,8 @@ public abstract partial class SmartBuild
   /// Executes dotnet test --filter Category=UnitTest against all test projects
   /// </summary>
   protected virtual Target UnitTests => _ => _
-    .DependsOn(Initialize, Compile)
+    .BaseTarget(nameof(UnitTests), this)
+    .DependsOn(Compile)
     .OnlyWhenDynamic(() => !SkipUnitTests)
     .WhenSkipped(DependencyBehavior.Skip)
     .Executes(() =>
@@ -58,7 +60,8 @@ public abstract partial class SmartBuild
   /// Executes dotnet test --filter Category=IntegrationTest against all test projects
   /// </summary>
   protected virtual Target IntegrationTests => _ => _
-    .DependsOn(Initialize, Compile)
+    .BaseTarget(nameof(IntegrationTests), this)
+    .DependsOn(Compile)
     .OnlyWhenDynamic(() => !SkipIntegrationTests)
     .WhenSkipped(DependencyBehavior.Skip)
     .Executes(() =>

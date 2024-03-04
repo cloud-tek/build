@@ -41,7 +41,9 @@ public partial class SmartBuild
   /// Packs the artifacts with the type equal to 'Package'
   /// </summary>
   protected virtual Target Pack => _ => _
-    .DependsOn(Restore)
+    .BaseTarget(nameof(Pack), this)
+    .WhenSkipped(DependencyBehavior.Execute)
+    .DependsOn(Test)
     .Executes(() =>
     {
       Log.Information("Packing NuGet packages...");
@@ -54,7 +56,7 @@ public partial class SmartBuild
   /// Pushes the package artifacts to the NuGet feed
   /// </summary>
   protected virtual Target Push => _ => _
-    .DependsOn(Initialize)
+    .BaseTarget(nameof(Push), this)
     .Requires(() => NugetApiUrl)
     .Requires(() => NugetApiKey)
     .Executes(() =>
@@ -69,7 +71,7 @@ public partial class SmartBuild
   /// Determines the dependencies of the soltion for BETA/Outdated/Vulnerability checks
   /// </summary>
   protected virtual Target BuildDependencyTree => _ => _
-    .OnlyWhenDynamic(() => !SkipBetaCheck || !SkipOutdatedCheck)
+    .BaseTarget(nameof(BuildDependencyTree), this)
     .DependsOn(Restore)
     .Executes(() => { PackageManager.BuildDependencyTree(this); });
 }

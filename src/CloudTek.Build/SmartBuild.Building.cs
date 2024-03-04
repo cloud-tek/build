@@ -29,30 +29,10 @@ public abstract partial class SmartBuild : NukeBuild
   }
 
   /// <summary>
-  /// dotnet nuke --target Initialize
-  /// Required by all targets to properly initialize the SmartBuild
-  /// </summary>
-  protected virtual Target Initialize => _ => _
-    .Executes(() =>
-    {
-      Repository
-        .Artifacts
-        .ForEach(artifact => { artifact.Initialize(); });
-
-      Repository.DetectTests(this);
-
-      Log.Information("IsLocalBuild: {IsLocalBuild}", IsLocalBuild);
-      Log.Information("SkipCommitCheck: {SkipCommitCheck}", SkipCommitCheck);
-      Log.Information("SkipBetaCheck: {SkipBetaCheck}", SkipBetaCheck);
-      Log.Information("SkipOutdatedCheck: {SkipOutdatedCheck}", SkipOutdatedCheck);
-      Log.Information("SkipFormatCheck: {SkipFormatCheck}", SkipFormatCheck);
-    });
-
-  /// <summary>
   /// dotnet nuke --target Clean
   /// </summary>
   protected virtual Target Clean => _ => _
-    .DependsOn(Initialize)
+    .BaseTarget(nameof(Clean), this)
     .Executes(() =>
     {
       Repository.ArtifactsDirectory.CreateOrCleanDirectory();
@@ -73,7 +53,8 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target Compile
   /// </summary>
   protected virtual Target Compile => _ => _
-    .DependsOn(Initialize, Restore, RunChecks)
+    .BaseTarget(nameof(Compile), this)
+    .DependsOn(Restore)
     .Executes(() =>
     {
       DotNetBuild(s => s
@@ -86,10 +67,23 @@ public abstract partial class SmartBuild : NukeBuild
     });
 
   /// <summary>
+  /// dotnet nuke --target All
+  /// </summary>
+  protected virtual Target All => _ => _
+    .BaseTarget(nameof(All), this)
+    .DependsOn(Pack, Publish)
+    .Executes(() =>
+    {
+      Log.Logger.Information($"All targets executed");
+    });
+
+  /// <summary>
   /// dotnet nuke --target Publish
   /// </summary>
   protected virtual Target Publish => _ => _
-    .DependsOn(Restore)
+    .BaseTarget(nameof(Publish), this)
+    .DependsOn(Test)
+    .WhenSkipped(DependencyBehavior.Execute)
     .Executes(() =>
     {
       Repository.Artifacts.Where(a => a.Type == ArtifactType.Service || a.Type == ArtifactType.Demo).ForEach(artifact =>
