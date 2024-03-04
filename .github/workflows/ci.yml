@@ -46,7 +46,6 @@ jobs:
       NetCoreVersion: 8.0.201
       Compile:      true
       UnitTests:    true
-      Pack:         true
       Push:         true
       NuGetApiUrl:  'https://api.nuget.org/v3/index.json'
     secrets:
