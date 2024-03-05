@@ -6,39 +6,36 @@ namespace CloudTek.Build;
 
 internal static class TargetDefinitionExtensions
 {
-  private const string NukeSkipList = "NUKE_SKIP";
-  private const string NukeSkipPrefix = "NUKE_SKIP_";
+  public const string NukeSkipList = "NUKE_SKIP";
+  public const string NukeSkipPrefix = "NUKE_SKIP_";
 
-  private static HashSet<string>? skippedTargets;
-
-  private static void GetSkippedTargets()
+  private static ImmutableHashSet<string> GetSkippedTargets(IReadOnlyDictionary<string, string> environment)
   {
-    if (skippedTargets == null)
-    {
-      skippedTargets = new HashSet<string>();
+    var result = new HashSet<string>();
 
-      var nukeSkip = EnvironmentInfo.Variables.GetValueOrDefault(NukeSkipList);
-      if (nukeSkip != null)
+    if (environment.TryGetValue(NukeSkipList, out var nukeSkip))
+    {
+      if (!string.IsNullOrWhiteSpace(nukeSkip))
       {
-        if (!string.IsNullOrWhiteSpace(nukeSkip))
-        {
-          skippedTargets.AddRange(nukeSkip.Split(
+        result.AddRange(
+          nukeSkip.Split(
             separator: ' ',
             options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-        }
       }
-
-      skippedTargets.AddRange(EnvironmentInfo.Variables
-          .Where(p => p.Key
-            .StartsWith(NukeSkipPrefix, StringComparison.OrdinalIgnoreCase)
-                      && bool.TryParse((string?)p.Value, out var skip) && skip)
-          .Select(p => p.Key.Remove(0, NukeSkipPrefix.Length)));
     }
+
+    result.AddRange(
+      environment
+        .Where(kvp => kvp.Key.StartsWith(NukeSkipPrefix, StringComparison.OrdinalIgnoreCase))
+        .Where(kvp => bool.TryParse(kvp.Value, out var value) && value)
+        .Select(kvp => kvp.Key.Replace(NukeSkipPrefix, string.Empty)));
+
+    return result.ToImmutableHashSet();
   }
 
-  internal static void PrintTargetsToSkip()
+  internal static void PrintTargetsToSkip(IReadOnlyDictionary<string, string> environment)
   {
-    GetSkippedTargets();
+    var skippedTargets = GetSkippedTargets(environment);
 
     Log.Information("Following targets will be skipped due to env variable NUKE_SKIP or NUKE_SKIP_<TARGET>: ");
     foreach (var target in skippedTargets!)
@@ -47,9 +44,12 @@ internal static class TargetDefinitionExtensions
     }
   }
 
-  internal static bool ShouldSkipTarget(string targetName, IReadOnlyCollection<string> invokedTargets)
+  internal static bool ShouldSkipTarget(
+    string targetName,
+    IReadOnlyCollection<string> invokedTargets,
+    IReadOnlyDictionary<string, string> environment)
   {
-    GetSkippedTargets();
+    var skippedTargets = GetSkippedTargets(environment);
 
     if (invokedTargets.Any(p => p == targetName))
       return false;
@@ -59,6 +59,13 @@ internal static class TargetDefinitionExtensions
     return shouldSkip;
   }
 
-  internal static ITargetDefinition RegisterTarget(this ITargetDefinition definition, string targetName, NukeBuild build) =>
-      definition.OnlyWhenStatic(() => !ShouldSkipTarget(targetName, build.InvokedTargets.Select(p => p.Name).ToList()));
+  internal static ITargetDefinition CheckIfSkipped(
+    this ITargetDefinition definition,
+    string targetName,
+    SmartBuild build) =>
+    definition.OnlyWhenStatic(
+      () => !ShouldSkipTarget(
+        targetName,
+        build.InvokedTargets.Select(p => p.Name).ToList(),
+        build.EnvironmentVariables));
 }

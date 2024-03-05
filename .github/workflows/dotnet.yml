@@ -129,22 +129,10 @@ jobs:
         working-directory: ${{ inputs.Directory }}
         shell: bash
       - name: dotnet nuke --target All
-        shell: pwsh
+        shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke --target All --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
-      # - name: dotnet nuke UnitTests
-      #   shell: bash
-      #   if: ${{ inputs.UnitTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke --target UnitTests --skip Compile RunChecks Clean
-      # - name: dotnet nuke --target IntegrationTests
-      #   shell: bash
-      #   if: ${{ inputs.IntegrationTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke IntegrationTests --skip Compile RunChecks Clean
       - name: tree results
         run: |
           tree ${{ github.workspace }}/results

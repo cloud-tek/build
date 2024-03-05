@@ -31,8 +31,8 @@ public abstract partial class SmartBuild
   /// dotnet nuke --target Test
   /// Executes all test targets against the solution
   /// </summary>
-  protected virtual Target Test => _ => _
-    .RegisterTarget(nameof(Test), this)
+  protected internal virtual Target Test => _ => _
+    .CheckIfSkipped(nameof(Test), this)
     .DependsOn(UnitTests, IntegrationTests, RunChecks)
     .Executes(() => { });
 
@@ -40,8 +40,8 @@ public abstract partial class SmartBuild
   /// dotnet nuke --target UnitTests
   /// Executes dotnet test --filter Category=UnitTest against all test projects
   /// </summary>
-  protected virtual Target UnitTests => _ => _
-    .RegisterTarget(nameof(UnitTests), this)
+  protected internal virtual Target UnitTests => _ => _
+    .CheckIfSkipped(nameof(UnitTests), this)
     .DependsOn(Compile)
     .Before(IntegrationTests)
     .OnlyWhenDynamic(() => !SkipUnitTests)
@@ -60,8 +60,8 @@ public abstract partial class SmartBuild
   /// dotnet nuke --target IntegrationTests
   /// Executes dotnet test --filter Category=IntegrationTest against all test projects
   /// </summary>
-  protected virtual Target IntegrationTests => _ => _
-    .RegisterTarget(nameof(IntegrationTests), this)
+  protected internal virtual Target IntegrationTests => _ => _
+    .CheckIfSkipped(nameof(IntegrationTests), this)
     .DependsOn(Compile)
     .OnlyWhenDynamic(() => !SkipIntegrationTests)
     .WhenSkipped(DependencyBehavior.Skip)

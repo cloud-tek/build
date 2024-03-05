@@ -128,18 +128,18 @@ public abstract partial class SmartBuild : NukeBuild
 
     Log.Information("IsLocalBuild: {IsLocalBuild}", IsLocalBuild);
 
-    TargetDefinitionExtensions.PrintTargetsToSkip();
+    TargetDefinitionExtensions.PrintTargetsToSkip(EnvironmentVariables);
   }
 
   /// <summary>
   /// Environment variables
   /// </summary>
-  protected IReadOnlyDictionary<string, string> EnvironmentVariables { get; init; }
+  internal IReadOnlyDictionary<string, string> EnvironmentVariables { get; init; }
 
   /// <summary>
   /// Filter used for dotnet test
   /// </summary>
-  protected virtual string TestFilter { get; init; } = "Flaky!=true";
+  protected internal virtual string TestFilter { get; init; } = "Flaky!=true";
 #pragma warning disable MA0009
 
   /// <summary>

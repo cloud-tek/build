@@ -11,8 +11,8 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target Format
   /// Executes dotnet format against the solution
   /// </summary>
-  protected virtual Target Format => _ => _
-    .RegisterTarget(nameof(Format), this)
+  protected internal virtual Target Format => _ => _
+    .CheckIfSkipped(nameof(Format), this)
     .DependsOn(Restore)
     .Executes(() =>
     {
@@ -23,16 +23,16 @@ public abstract partial class SmartBuild : NukeBuild
   /// <summary>
   ///  dotnet nuke --target FormatCheck --skip-format-check
   /// </summary>
-  protected virtual Target FormatCheck => _ => _
-    .RegisterTarget(nameof(FormatCheck), this)
+  protected internal virtual Target FormatCheck => _ => _
+    .CheckIfSkipped(nameof(FormatCheck), this)
     .DependsOn(Restore)
     .Executes(() => { FormatInternal(true); });
 
   /// <summary>
   /// dotnet nuke --target FormatAnalyzersCheck --skip-format-analyzers-check
   /// </summary>
-  protected virtual Target FormatAnalyzersCheck => _ => _
-    .RegisterTarget(nameof(FormatAnalyzersCheck), this)
+  protected internal virtual Target FormatAnalyzersCheck => _ => _
+    .CheckIfSkipped(nameof(FormatAnalyzersCheck), this)
     .DependsOn(Restore)
     .Executes(() => { FormatAnalyzersInternal(true); });
 
