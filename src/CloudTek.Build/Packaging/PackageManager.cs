@@ -177,13 +177,13 @@ public abstract partial class PackageManager
       }
     }
 
-    if (!build.SkipBetaCheck)
+    if (build.ScheduledTargets.Any(p => p.Name == nameof(build.PackagesBetaCheck)))
     {
       var betaOutput = DotNet("list package", build.Solution.Directory);
       ParsePackages(betaOutput, PackageParsingMode.Default);
     }
 
-    if (!build.SkipOutdatedCheck)
+    if (build.ScheduledTargets.Any(p => p.Name == nameof(build.PackagesOutdatedCheck)))
     {
       var outdatedOutput = DotNet("list package --outdated", build.Solution.Directory);
       ParsePackages(outdatedOutput, PackageParsingMode.Outdated);

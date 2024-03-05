@@ -6,6 +6,8 @@ using CloudTek.Build.Versioning;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Utilities.Collections;
+using Serilog;
 
 namespace CloudTek.Build;
 
@@ -109,14 +111,35 @@ public abstract partial class SmartBuild : NukeBuild
   }
 
   /// <summary>
+  /// OnBuildInitialized override
+  /// </summary>
+  protected override void OnBuildInitialized()
+  {
+    base.OnBuildInitialized();
+
+    Repository
+      .Artifacts
+      .ForEach(artifact =>
+      {
+        artifact.Initialize();
+      });
+
+    Repository.DetectTests(this);
+
+    Log.Information("IsLocalBuild: {IsLocalBuild}", IsLocalBuild);
+
+    TargetDefinitionExtensions.PrintTargetsToSkip(EnvironmentVariables);
+  }
+
+  /// <summary>
   /// Environment variables
   /// </summary>
-  protected IReadOnlyDictionary<string, string> EnvironmentVariables { get; init; }
+  internal IReadOnlyDictionary<string, string> EnvironmentVariables { get; init; }
 
   /// <summary>
   /// Filter used for dotnet test
   /// </summary>
-  protected virtual string TestFilter { get; init; } = "Flaky!=true";
+  protected internal virtual string TestFilter { get; init; } = "Flaky!=true";
 #pragma warning disable MA0009
 
   /// <summary>

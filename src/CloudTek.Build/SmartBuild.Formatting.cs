@@ -8,22 +8,11 @@ namespace CloudTek.Build;
 public abstract partial class SmartBuild : NukeBuild
 {
   /// <summary>
-  ///   dotnet nuke --target Restore --skip-format-check
-  /// </summary>
-  [Parameter]
-  public bool SkipFormatCheck { get; set; }
-
-  /// <summary>
-  ///   dotnet nuke --target Restore --skip-format-analyzers-check
-  /// </summary>
-  [Parameter]
-  public bool SkipFormatAnalyzersCheck { get; set; }
-
-  /// <summary>
   /// dotnet nuke --target Format
   /// Executes dotnet format against the solution
   /// </summary>
-  protected virtual Target Format => _ => _
+  protected internal virtual Target Format => _ => _
+    .CheckIfSkipped(nameof(Format), this)
     .DependsOn(Restore)
     .Executes(() =>
     {
@@ -34,16 +23,16 @@ public abstract partial class SmartBuild : NukeBuild
   /// <summary>
   ///  dotnet nuke --target FormatCheck --skip-format-check
   /// </summary>
-  protected virtual Target FormatCheck => _ => _
-    .OnlyWhenDynamic(() => !SkipFormatCheck)
+  protected internal virtual Target FormatCheck => _ => _
+    .CheckIfSkipped(nameof(FormatCheck), this)
     .DependsOn(Restore)
     .Executes(() => { FormatInternal(true); });
 
   /// <summary>
   /// dotnet nuke --target FormatAnalyzersCheck --skip-format-analyzers-check
   /// </summary>
-  protected virtual Target FormatAnalyzersCheck => _ => _
-    .OnlyWhenDynamic(() => !SkipFormatAnalyzersCheck)
+  protected internal virtual Target FormatAnalyzersCheck => _ => _
+    .CheckIfSkipped(nameof(FormatAnalyzersCheck), this)
     .DependsOn(Restore)
     .Executes(() => { FormatAnalyzersInternal(true); });
 

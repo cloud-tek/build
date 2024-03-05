@@ -19,15 +19,10 @@ on:
       Compile:
         description: "Flag indicating if Compile task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
       Publish:
         description: "Flag indicating if Publish task is to be run after the Unit&Integration tests"
-        type: boolean
-        default: false
-        required: false
-      Pack:
-        description: "Flag indicating if Pack task is to be run after the Unit&Integration tests"
         type: boolean
         default: false
         required: false
@@ -46,20 +41,25 @@ on:
         type: boolean
         default: false
         required: false
-      ModuleTests:
-        description: "Flag indicating if ModuleTests task is to be run"
+      FormatCheck:
+        description: "Flag indicating if FormatCheck task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
-      SystemTests:
-        description: "Flag indicating if SystemTests task is to be run"
+      PackagesOutdatedCheck:
+        description: "Flag indicating if PackagesOutdatedCheck task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
-      SmokeTests:
-        description: "Flag indicating if SmokeTests task is to be run"
+      PackagesBetaCheck:
+        description: "Flag indicating if PackagesBetaCheck task is to be run"
         type: boolean
-        default: false
+        default: true
+        required: false
+      RunChecks:
+        description: "Flag indicating if RunChecks task is to be run"
+        type: boolean
+        default: true
         required: false
       NuGetApiUrl:
         description: "NuGet Url"
@@ -70,7 +70,17 @@ jobs:
   nuke:
     name: nuke
     runs-on: ubuntu-latest
+    env:
+      NUKE_SKIP_UNITTESTS: ${{ !inputs.UnitTests }}
+      NUKE_SKIP_INTEGRATIONTESTS: ${{ !inputs.IntegrationTests }}
+      NUKE_SKIP_FORMATCHECK: ${{ !inputs.FormatCheck }}
+      NUKE_SKIP_PACKAGESOUTDATEDCHECK: ${{ !inputs.PackagesOutdatedCheck }}
+      NUKE_SKIP_PACKAGESBETACHECK: ${{ !inputs.PackagesBetaCheck }}
+      NUKE_SKIP_RUNCHECKS: ${{ !inputs.RunChecks }}
+      NUKE_SKIP_PUSH: ${{ !inputs.Push }}
+      NUKE_SKIP_PUBLISH: ${{ !inputs.Publish }}
     steps:
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: "0"
@@ -95,12 +105,10 @@ jobs:
         with:
           branch: refs/heads/main
       - uses: actions/setup-dotnet@v1
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         name: dotnet installer
         with:
           dotnet-version: ${{ inputs.NetCoreVersion }}
       - name: global.json
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         shell: bash
         run: |
           if [ -f "${{ github.workspace }}/global.json" ]; then
@@ -118,30 +126,19 @@ jobs:
           dotnet nuget list source
           dotnet tool restore
         name: dotnet tool restore
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         shell: bash
-      - name: dotnet nuke --target Compile
-        if: ${{ inputs.Compile && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
+      - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke --target Compile
-      - name: dotnet nuke UnitTests
-        shell: bash
-        if: ${{ inputs.UnitTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke --target UnitTests --skip Compile RunChecks Clean
-      - name: dotnet nuke --target IntegrationTests
-        shell: bash
-        if: ${{ inputs.IntegrationTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke IntegrationTests --skip Compile RunChecks Clean
-      - name: diag
+          dotnet nuke --target All --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
+      - name: tree results
         run: |
           tree ${{ github.workspace }}/results
+      - name: tree artifacts
+        run: |
+          tree ${{ github.workspace }}/artifacts
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: ${{ inputs.UnitTests }} || ${{ inputs.IntegrationTests }} && (success() || failure())
@@ -149,24 +146,6 @@ jobs:
           name: XUnit Tests # Name of the check run which will be created
           path: ${{ github.workspace }}/results/tests/*.trx
           reporter: dotnet-trx # Format of test results
-      - name: dotnet nuke --target Publish
-        shell: bash
-        if: ${{ inputs.Publish && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke Publish --target --skip Compile RunChecks
-      - name: dotnet nuke --target Pack
-        shell: bash
-        if: ${{ inputs.Pack && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke --target Pack --skip Compile RunChecks
-      - name: dotnet nuke --target Push
-        shell: bash
-        if: ${{ inputs.Push && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
       - shell: bash
         name: gh release create
         if: |

@@ -25,7 +25,7 @@ public partial class SmartBuild
   /// dotnet nuke --target Restore
   /// Restores the packages for the solution using the PackageManager
   /// </summary>
-  protected virtual Target Restore => _ => _
+  protected internal virtual Target Restore => _ => _
     .DependsOn(Clean)
     .WhenSkipped(DependencyBehavior.Execute)
     .Executes(() =>
@@ -40,8 +40,10 @@ public partial class SmartBuild
   /// dotnet nuke --target Pack
   /// Packs the artifacts with the type equal to 'Package'
   /// </summary>
-  protected virtual Target Pack => _ => _
-    .DependsOn(Restore)
+  protected internal virtual Target Pack => _ => _
+    .CheckIfSkipped(nameof(Pack), this)
+    .WhenSkipped(DependencyBehavior.Execute)
+    .DependsOn(Test)
     .Executes(() =>
     {
       Log.Information("Packing NuGet packages...");
@@ -53,8 +55,8 @@ public partial class SmartBuild
   /// dotnet nuke --target Push
   /// Pushes the package artifacts to the NuGet feed
   /// </summary>
-  protected virtual Target Push => _ => _
-    .DependsOn(Initialize)
+  protected internal virtual Target Push => _ => _
+    .CheckIfSkipped(nameof(Push), this)
     .Requires(() => NugetApiUrl)
     .Requires(() => NugetApiKey)
     .Executes(() =>
@@ -68,8 +70,8 @@ public partial class SmartBuild
   /// dotnet nuke --target BuildDependencyTree
   /// Determines the dependencies of the soltion for BETA/Outdated/Vulnerability checks
   /// </summary>
-  protected virtual Target BuildDependencyTree => _ => _
-    .OnlyWhenDynamic(() => !SkipBetaCheck || !SkipOutdatedCheck)
+  protected internal virtual Target BuildDependencyTree => _ => _
+    .CheckIfSkipped(nameof(BuildDependencyTree), this)
     .DependsOn(Restore)
     .Executes(() => { PackageManager.BuildDependencyTree(this); });
 }

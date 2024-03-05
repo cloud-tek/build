@@ -7,28 +7,10 @@ namespace CloudTek.Build;
 public abstract partial class SmartBuild : NukeBuild
 {
   /// <summary>
-  ///   dotnet nuke --target Restore --skip-beta-check true
-  /// </summary>
-  [Parameter]
-  public bool SkipBetaCheck { get; set; } = true;
-
-  /// <summary>
-  ///   dotnet nuke --target Restore --skip-outdated-check
-  /// </summary>
-  [Parameter]
-  public bool SkipOutdatedCheck { get; set; } = true;
-
-  /// <summary>
-  ///   dotnet nuke --target Restore --skip-commit-check
-  /// </summary>
-  [Parameter]
-  public bool SkipCommitCheck { get; set; }
-
-  /// <summary>
   /// Installs Husky.NET
   /// </summary>
-  protected virtual Target HuskyInstall => _ => _
-    .OnlyWhenDynamic(() => !SkipCommitCheck)
+  protected internal virtual Target HuskyInstall => _ => _
+    .CheckIfSkipped(nameof(HuskyInstall), this)
     .Executes(() =>
     {
       DotNet(string.Join(' ', HuskyInstallArgs), Solution.Directory);
@@ -53,8 +35,10 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target RunChecks
   /// A meta-target aggregating all pre-build checks
   /// </summary>
-  protected virtual Target RunChecks => _ => _
+  protected internal virtual Target RunChecks => _ => _
+    .CheckIfSkipped(nameof(RunChecks), this)
     .DependsOn(CommitLintCheck, FormatCheck, PackagesBetaCheck, PackagesOutdatedCheck)
+    .Before(UnitTests)
     .WhenSkipped(DependencyBehavior.Skip)
     .Executes(() => { Log.Information("All checks executed..."); });
 
@@ -62,9 +46,9 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target CommitLintCheck
   /// Executes Husky.NET to check the commit message
   /// </summary>
-  protected virtual Target CommitLintCheck => _ => _
+  protected internal virtual Target CommitLintCheck => _ => _
+    .CheckIfSkipped(nameof(CommitLintCheck), this)
     .DependsOn(HuskyInstall)
-    .OnlyWhenDynamic(() => !SkipCommitCheck)
     .Executes(() =>
     {
       var huskyDir = $"{Solution.Directory}/.husky";
@@ -77,8 +61,8 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target PackagesBetaCheck
   /// Uses the PackageManager to check the solution for BETA packages
   /// </summary>
-  protected virtual Target PackagesBetaCheck => _ => _
-    .OnlyWhenDynamic(() => !SkipBetaCheck)
+  protected internal virtual Target PackagesBetaCheck => _ => _
+    .CheckIfSkipped(nameof(PackagesBetaCheck), this)
     .DependsOn(BuildDependencyTree)
     .Executes(() => { PackageManager.CheckBetaPackages(this); });
 
@@ -86,8 +70,8 @@ public abstract partial class SmartBuild : NukeBuild
   /// dotnet nuke --target PackagesOutdatedCheck
   /// Uses the PackageManager to check the solution for OUTDATED packages
   /// </summary>
-  protected virtual Target PackagesOutdatedCheck => _ => _
-    .OnlyWhenDynamic(() => !SkipOutdatedCheck)
+  protected internal virtual Target PackagesOutdatedCheck => _ => _
+    .CheckIfSkipped(nameof(PackagesOutdatedCheck), this)
     .DependsOn(BuildDependencyTree)
     .Executes(() => { PackageManager.CheckOutdatedPackages(this); });
 }

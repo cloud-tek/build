@@ -15,6 +15,16 @@ The `CloudTek.Build` package is meant to be a reusable build system for a variet
 >
 >When invoking testing related targets, SmartBuild will propagate all Environment Variables to `dotnet test`. In order to ensure that your tests run correctly, please make sure that all required variable are present in your env (for instance in `~/.zshrc` or in your Powershell profile)
 
+### Skipping targets through environment variables
+
+Targets can be skipped using `NUKE_SKIP_<target-name>`
+
+```bash
+export NUKE_SKIP_PACKAGESOUTDATEDCHECK=true
+export NUKE_SKIP_PACKAGESBETACHECK=true
+```
+and then run `nuke --target RunChecks`
+
 #### Integration testing
 
 In order to execute all tests properly, please ensure that the
@@ -250,8 +260,8 @@ There are multiple ways to start targets which conduct testing.
 - `dotnet nuke --target IntegrationTests` - IntegrationTests & Compilation
 - `dotnet nuke --target IntegrationTests --skip Compile` - IntegrationTests only without Compilation of the solution
 - `dotnet nuke --target Test` - All Tests, Checks & Compilation
-- `dotnet nuke --target Test --skip-unit-tests <true | false>` - Integration Tests, Checks & Compilation
-- `dotnet nuke --target Test --skip-integration-tests <true | false>` - Unit Tests, Checks & Compilation
+- `dotnet nuke --target Test --skip UnitTests` - Integration Tests, Checks & Compilation
+- `dotnet nuke --target Test --skip IntegrationTests` - Unit Tests, Checks & Compilation
 
 #### Filtering
 
@@ -309,14 +319,14 @@ The `RunChecks` target can be used in order to execute all standard checkswithin
 
 Checks can be skipped using dedicated boolean flags. The flags can be combined:
 
-- `--skip-beta-check`: skips BETA packages check
-- `--skip-outdated-check`: skips OUTDATED packages check
-- `--skip-format-check`: skips the format check
-- `--skip-commitlint-check`: skips the commitlint check
+- `--skip PackagesBetaCheck`: skips BETA packages check
+- `--skip PackagesOutdatedCheck`: skips OUTDATED packages check
+- `--skip FormatCheck`: skips the format check
+- `--skip CommitLintCheck`: skips the commitlint check
 
 Example:
 
-- `dotnet nuke --target RunChecks --skip-beta-check`
+- `dotnet nuke --target RunChecks --skip PackagesBetaCheck`
 
 #### CommitLintCheck
 
@@ -340,9 +350,6 @@ The `FormatCheck` target can be used in order to execute the following dotnet CL
 The target will cause no side-effects.
 
 - `dotnet nuke --target FormatCheck`
-- `dotnet nuke --target FormatCheck --skip-format-check` - target will be skipped
-- `dotnet nuke --target FormatCheck --skip-format-check true` - target will be skipped
-- `dotnet nuke --target FormatCheck --skip-format-check false` - target will not be skipped
 
 ##### Format
 
@@ -353,9 +360,6 @@ The `Format` target works in the same way as `FormatCheck`, except for the fact 
 The `PackageBetaCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
 
 - `dotnet nuke --target PackageBetaCheck`
-- `dotnet nuke --target PackageBetaCheck --skip-beta-check` - target will be skipped
-- `dotnet nuke --target PackageBetaCheck --skip-beta-check true` - target will be skipped
-- `dotnet nuke --target PackageBetaCheck --skip-beta-check false` - target will not be skipped
 
 The `PackageBetaCheck` will cause 1 additional target to be executed before `Restore`:
 
@@ -369,9 +373,6 @@ The target will cause `dotnet list package` to execute and gather all informatio
 The `PackageOutdatedCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
 
 - `dotnet nuke --target PackageOutdatedCheck`
-- `dotnet nuke --target PackageOutdatedCheck --skip-outdated-check` - target will be skipped
-- `dotnet nuke --target PackageOutdatedCheck --skip-outdated-check true` - target will be skipped
-- `dotnet nuke --target PackageOutdatedCheck --skip-outdated-check false` - target will not be skipped
 
 The `PackageOutdatedCheck` will cause 1 additional target to be executed before `Restore`:
 
