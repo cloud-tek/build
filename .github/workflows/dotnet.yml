@@ -133,7 +133,7 @@ jobs:
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke --target All
-      - name: dotnet nuke --target All
+      - name: dotnet nuke --target Push
         shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
