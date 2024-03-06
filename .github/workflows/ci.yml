@@ -39,7 +39,7 @@ permissions:
 
 jobs:
   build:
-    uses: cloud-tek/github/workflows/nuke/nuke.yml@main
+    uses: cloud-tek/github/.github/workflows/nuke.yml@main
     # uses: ./.github/workflows/dotnet.yml
     name: build
     with:
