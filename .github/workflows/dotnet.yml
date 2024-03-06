@@ -132,7 +132,12 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke --target All --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuke --target All
+      - name: dotnet nuke --target All
+        shell: bash
+        working-directory: ${{ inputs.Directory }}
+        run: |
+          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
       - name: tree results
         run: |
           tree ${{ github.workspace }}/results
@@ -146,8 +151,8 @@ jobs:
           name: XUnit Tests # Name of the check run which will be created
           path: ${{ github.workspace }}/results/tests/*.trx
           reporter: dotnet-trx # Format of test results
-      - shell: bash
-        name: gh release create
+      - name: gh release create
+        shell: bash
         if: |
           github.ref == 'refs/heads/main' &&
           github.event_name == 'pull_request' &&
