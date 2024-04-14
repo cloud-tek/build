@@ -79,7 +79,7 @@ public abstract partial class SmartBuild
   {
     return settings
       .SetProjectFile(test.Project)
-      .SetLoggers($"trx;LogFileName={test.Project.NameWithoutExtension}.trx")
+      .SetLoggers($"trx;LogFileName={test.Project.NameWithoutExtension}.{Enum.GetName(typeof(TestType), type)}.trx")
       .SetConfiguration(Configuration)
       .SetResultsDirectory(Repository.TestResultsDirectory)
       .SetProcessToolPath(DotNetPath)
