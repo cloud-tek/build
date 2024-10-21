@@ -1,176 +1,287 @@
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
+using CloudTek.Build.Extensions;
 using CloudTek.Build.Packaging;
 using CloudTek.Build.Versioning;
 using Nuke.Common;
 using Nuke.Common.Git;
+using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Utilities.Collections;
 using Serilog;
 
-namespace CloudTek.Build;
-
-/// <summary>
-/// Abstract SmartBuild
-/// </summary>
-/// <typeparam name="TPackageManager">Type of package manager</typeparam>
-/// <typeparam name="TVersioningStrategy">Type of versioning strategy</typeparam>
-public abstract class SmartBuild<TPackageManager, TVersioningStrategy> : SmartBuild
-  where TPackageManager : PackageManager, new()
-  where TVersioningStrategy : VersioningStrategy, new()
+namespace CloudTek.Build
 {
   /// <summary>
-  /// Contructor for SmartBuild
+  /// SmartBuild with versioning strategy
   /// </summary>
-  /// <param name="repository"></param>
-  protected SmartBuild(Repository repository)
-    : base(repository, new TPackageManager(), new TVersioningStrategy())
+  /// <typeparam name="TVersioningStrategy"></typeparam>
+  public abstract class SmartBuild<TVersioningStrategy> : SmartBuild
+    where TVersioningStrategy : VersioningStrategy, new()
   {
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    protected SmartBuild() : base(new PackageManager(), new TVersioningStrategy())
+    {
+    }
   }
 
   /// <summary>
-  /// Contructor for SmartBuild
+  /// SmartBuild is the NUKE Build wrapper, providing all of the default functionalities
   /// </summary>
-  /// <param name="repository"></param>
-  /// <param name="solutionProvider"></param>
-  protected SmartBuild(Repository repository, Func<Solution> solutionProvider)
-    : base(repository, new TPackageManager(), new TVersioningStrategy(), solutionProvider)
-  { }
-}
-
-/// <summary>
-/// Abstract SmartBuild
-/// </summary>
-public abstract partial class SmartBuild : NukeBuild
-{
-  /// <summary>
-  /// Package manager
-  /// </summary>
-  protected readonly PackageManager PackageManager;
-
-  /// <summary>
-  /// Repository
-  /// </summary>
-  public readonly Repository Repository;
-
-  /// <summary>
-  /// Solution information for SmartBuild
-  /// </summary>
-  [Solution] public readonly Solution Solution = default!;
-
-  /// <summary>
-  /// Versioning strategy for SmartBuild
-  /// </summary>
-  public readonly VersioningStrategy VersioningStrategy;
-
-  /// <summary>
-  /// Constructor for SmartBuild
-  /// </summary>
-  /// <param name="repository"></param>
-  /// <param name="packageManager"></param>
-  /// <param name="versioningStrategy"></param>
-  /// <exception cref="ArgumentNullException">Thrown when one of the parameters is null.</exception>
-  /// <exception cref="SmartBuildException">Thrown when SmartBuild-specific error occurs</exception>
-  protected SmartBuild(
-    Repository repository,
-    PackageManager packageManager,
-    VersioningStrategy versioningStrategy)
+  public abstract partial class SmartBuild : NukeBuild
   {
-    _ = repository ?? throw new ArgumentNullException(nameof(repository));
-    if (repository.Artifacts == null || repository.Artifacts.Length == 0)
-      throw new SmartBuildException(SmartBuildError.NoArtifacts);
+    /// <summary>
+    /// Package manager
+    /// </summary>
+    protected readonly PackageManager PackageManager;
 
-    Repository = repository;
-    Repository.Initialize(RootDirectory);
-    PackageManager = packageManager;
-    VersioningStrategy = versioningStrategy;
+    /// <summary>
+    /// Versioning strategy for SmartBuild
+    /// </summary>
+    protected readonly VersioningStrategy VersioningStrategy;
 
-    EnvironmentVariables = new ReadOnlyDictionary<string, string>(Environment.GetEnvironmentVariables()
-      .OfType<DictionaryEntry>()
-      .ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value!));
-  }
+    private Repository? _repository;
 
-  /// <summary>
-  /// Constructor for SmartBuild
-  /// </summary>
-  /// <param name="repository"></param>
-  /// <param name="packageManager"></param>
-  /// <param name="versioningStrategy"></param>
-  /// <param name="solutionProvider"></param>
-  /// <exception cref="ArgumentNullException">Thrown when one of the parameters is null.</exception>
-  /// <exception cref="SmartBuildException">Thrown when SmartBuild-specific error occurs</exception>
-  protected SmartBuild(
-    Repository repository,
-    PackageManager packageManager,
-    VersioningStrategy versioningStrategy,
-    Func<Solution> solutionProvider)
-  : this(repository, packageManager, versioningStrategy)
-  {
-    Solution = solutionProvider() ?? throw new ArgumentNullException(nameof(solutionProvider));
-  }
+    private Solution? _solution;
 
-  /// <summary>
-  /// OnBuildInitialized override
-  /// </summary>
-  protected override void OnBuildInitialized()
-  {
-    base.OnBuildInitialized();
+    /// <summary>
+    /// Default constructor
+    /// </summary>
+    protected SmartBuild(
+      PackageManager packageManager,
+      VersioningStrategy versioningStrategy)
+    {
+      Environment.SetEnvironmentVariable("NUKE_TELEMETRY_OPTOUT", "true");
+      Environment.SetEnvironmentVariable("NOLOGO", "true");
 
-    Repository
-      .Artifacts
-      .ForEach(artifact =>
+      PackageManager = packageManager;
+      VersioningStrategy = versioningStrategy;
+      EnvironmentVariables = new ReadOnlyDictionary<string, string?>(
+        Environment.GetEnvironmentVariables()
+          .OfType<DictionaryEntry>()
+          .ToDictionary(entry => (string)entry.Key, entry => (string?)entry.Value));
+    }
+
+    /// <summary>
+    /// Global tool location on the dotnet tool
+    /// </summary>
+    public static AbsolutePath GlobalToolDirectory => EnvironmentInfo.SpecialFolder(SpecialFolders.UserProfile) / ".cloud-tek.build";
+
+    /// <summary>
+    /// Environment variables
+    /// </summary>
+    protected IReadOnlyDictionary<string, string?> EnvironmentVariables { get; init; }
+
+    /// <summary>
+    /// Filter used for dotnet test
+    /// </summary>
+    [Parameter(
+      "Test filter. Default is 'Flaky!=true'")]
+    public virtual string TestFilter { get; init; } = "Flaky!=true";
+
+    /// <summary>
+    /// Space-separated list of packages to be checked during pre-build checks
+    /// </summary>
+    [Parameter(
+      "Space separated strings for outdated and beta checks to narrow search. Filter works as contains function. If any string match - package is included in results. Default is 'CloudTek Core'.")]
+    public virtual string PackagesFilter { get; init; } =
+      "CloudTek Core";
+
+    /// <summary>
+    /// Build configuration (Debug | Release). Defaults to Debug for local builds.
+    /// </summary>
+    [Parameter("Configuration for dotnet commands. Default is 'Debug' (local) or 'Release' (server)")]
+    public virtual Configuration Configuration { get; set; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+
+    /// <summary>
+    /// The runtime to be used for publishing
+    /// </summary>
+    [Parameter("Runtime for dotnet commands. Default is empty string. Empty string will be ignored during publishing")]
+    public virtual string Runtime { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Ready to Run flag, to reduce JIT'ing
+    /// </summary>
+    [Parameter("Ready to Run for dotnet commands. Default is false")]
+    public virtual bool ReadyToRun { get; set; } = false;
+
+    /// <summary>
+    /// CI Build number
+    /// </summary>
+    [Parameter("A buildNumber for beta suffix calculation. Default is empty")]
+    public virtual string BuildNumber { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Flag indicating whether code coverage is to be enabled
+    /// </summary>
+    [Parameter("Enabling code coverage collection. Default is false")]
+    public virtual bool CollectCoverage { get; set; }
+
+    /// <summary>
+    /// Solution information for SmartBuild
+    /// </summary>
+    public Solution Solution => _solution ??= GetSolution();
+
+    /// <summary>
+    /// Repository information for SmartBuild
+    /// </summary>
+    public Repository Repository => _repository ??= new Repository(Solution);
+
+    /// <summary>
+    /// GitRepository information for SmartBuild
+    /// </summary>
+    [GitRepository] public GitRepository? GitRepository { get; private set; }
+
+    private string GitRepositoryName => GitRepository?.ToString() ?? "unknown";
+
+    /// <summary>
+    /// dotnet nuke --target All
+    /// </summary>
+    protected virtual Target All => _ => _
+      .DependsOn(Compile, Test, Pack, Publish)
+      .Executes(
+        () =>
+        {
+          Log.Logger.Information($"All targets executed");
+        });
+
+    /// <summary>
+    /// Executed whenever a build is created. Ensures logo is displayed.
+    /// </summary>
+    protected override void OnBuildCreated()
+    {
+      Console.WriteLine();
+      Console.WriteLine("〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰");
+      Console.WriteLine(
+        " \u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2557      \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557    \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2557  \u2588\u2588\u2557   \u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \n\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557   \u255a\u2550\u2550\u2588\u2588\u2554\u2550\u2550\u255d\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2551 \u2588\u2588\u2554\u255d   \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557\n\u2588\u2588\u2551     \u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551   \u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2588\u2588\u2588\u2554\u255d    \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\n\u2588\u2588\u2551     \u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551\u255a\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2551   \u2588\u2588\u2554\u2550\u2550\u255d  \u2588\u2588\u2554\u2550\u2588\u2588\u2557    \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\n\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d      \u2588\u2588\u2551   \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551  \u2588\u2588\u2557\u2588\u2588\u2557\u2588\u2588\u2551\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\n \u255a\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u255d  \u255a\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u255d       \u255a\u2550\u255d   \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d\u255a\u2550\u255d\u255a\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u255d ");
+
+      Console.WriteLine("Go here to learn about CloudTek.Build");
+      Console.WriteLine(
+        "https://github.com/cloud-tek/build");
+
+      Console.WriteLine("〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰");
+
+      base.OnBuildCreated();
+    }
+
+    /// <summary>
+    /// Executes whenever a build is initialized. Starts measurements
+    /// </summary>
+    protected override void OnBuildInitialized()
+    {
+      _stopwatches.Add("Total", Stopwatch.StartNew());
+      SkipTargetsFromEnvVariable();
+      base.OnBuildInitialized();
+      TargetDefinitionExtensions.PrintTargetsToSkip();
+      if (GitRepository == null)
       {
-        artifact.Initialize();
-      });
+        Log.Warning("Didn't detect git repository!");
+      }
+    }
 
-    Repository.DetectTests(this);
+    private void SkipTargetsFromEnvVariable()
+    {
+      var nukeSkip = EnvironmentInfo.Variables.GetValueOrDefault("NUKE_SKIP");
+      var targetsToSkip = nukeSkip?.Split("+") ?? [];
+      foreach (var target in ExecutionPlan.Where(p => targetsToSkip.Contains(p.Name)).ToList())
+      {
+        target.StaticConditions.Add(
+          new ValueTuple<string, Func<bool>>("Skipped due to NUKE_SKIP variable", () => false));
+      }
+    }
 
-    Log.Information("IsLocalBuild: {IsLocalBuild}", IsLocalBuild);
+    /// <summary>
+    /// Post-build duration report and cleanUp
+    /// </summary>
+    protected override void OnBuildFinished()
+    {
+      base.OnBuildFinished();
+      ReportDuration(
+        "Total",
+        GitRepositoryName,
+        IsSuccessful,
+        _stopwatches["Total"].ElapsedMilliseconds);
+      LoggerFactory.Dispose();
+      Meter.Dispose();
+      MetricsProvider.Dispose();
+    }
 
-    TargetDefinitionExtensions.PrintTargetsToSkip(EnvironmentVariables);
+    private static Solution GetSolution()
+    {
+      EnsureIsPackableDisabledByDefault();
+
+      var paths = RootDirectory.GlobFiles("*sln");
+      if (paths.Count == 0)
+        throw new InvalidOperationException("Didn't find any solution file - please, create one :)");
+      if (paths.Count > 1)
+      {
+        throw new InvalidOperationException(
+          "There is more than one solution - please make sure that you run the SmartBuild in a folder with only one solution. Any additional solutions are to be moved to separate folders");
+      }
+
+      return SolutionModelTasks.ParseSolution(paths.Single());
+    }
+
+    private static void EnsureIsPackableDisabledByDefault()
+    {
+      var directoryBuildPropsPath = Path.Combine(Directory.GetCurrentDirectory(), "Directory.Build.props");
+
+      if (!File.Exists(directoryBuildPropsPath))
+      {
+        // File does not exist, create it
+        var content = @"<Project>
+                              <PropertyGroup>
+                                <IsPackable>false</IsPackable>
+                              </PropertyGroup>
+                            </Project>";
+
+        File.WriteAllText(directoryBuildPropsPath, content);
+      }
+      else
+      {
+        var doc = XDocument.Load(directoryBuildPropsPath);
+
+        var root = doc.Root;
+        if (root == null)
+        {
+          // File is invalid, recreate it
+          root = new XElement("Project");
+          doc = new XDocument(root);
+        }
+
+        var isPackable = root.Descendants("IsPackable").FirstOrDefault()?.Value;
+        var disablePackableCheck = root.Descendants("DisablePackableCheckInRoot").FirstOrDefault()?.Value;
+
+        if (disablePackableCheck?.ToLowerInvariant() == "true")
+          return;
+
+        if (isPackable == null)
+        {
+          // Add PropertyGroup if needed
+          var propertyGroup = root.Element("PropertyGroup");
+          if (propertyGroup == null)
+          {
+            propertyGroup = new XElement("PropertyGroup");
+            root.Add(propertyGroup);
+          }
+
+          propertyGroup.SetElementValue("IsPackable", "false");
+        }
+
+        var settings = new XmlWriterSettings
+        {
+          OmitXmlDeclaration = true,
+          Indent = true,
+          Encoding = new UTF8Encoding(false)
+        };
+        using var xw = XmlWriter.Create(directoryBuildPropsPath, settings);
+        doc.Save(xw);
+      }
+    }
   }
-
-  /// <summary>
-  /// Environment variables
-  /// </summary>
-  internal IReadOnlyDictionary<string, string> EnvironmentVariables { get; init; }
-
-  /// <summary>
-  /// Filter used for dotnet test
-  /// </summary>
-  protected internal virtual string TestFilter { get; init; } = "Flaky!=true";
-#pragma warning disable MA0009
-
-  /// <summary>
-  /// Regex used to match packages used in pre-build checks
-  /// </summary>
-  public virtual Regex PackageChecksRegex { get; init; } = new("^(CloudTek|CloudTek)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-#pragma warning restore MA0009
-
-  /// <summary>
-  /// Build configuration
-  /// </summary>
-  [Parameter("Configuration to _build - Default is 'Debug' (local) or 'Release' (server)")]
-  public Configuration Configuration { get; set; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
-
-  /// <summary>
-  /// CI Build number
-  /// </summary>
-  [Parameter("BuildNumber")] public string BuildNumber { get; set; } = default!;
-
-  /// <summary>
-  /// API URL for NuGet
-  /// </summary>
-  [Parameter] public string NugetApiUrl { get; set; } = default!;
-
-  /// <summary>
-  /// API Key for NuGet
-  /// </summary>
-  [Parameter] public string NugetApiKey { get; set; } = default!;
-
-  /// <summary>
-  /// GitRepository information for SmartBuild
-  /// </summary>
-  [GitRepository] public GitRepository GitRepository { get; set; } = default!;
 }

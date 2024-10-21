@@ -1,26 +1,99 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "$ref": "#/definitions/build",
-  "title": "Build Schema",
+  "properties": {
+    "BuildNumber": {
+      "type": "string",
+      "description": "A buildNumber for beta suffix calculation. Default is empty"
+    },
+    "CollectCoverage": {
+      "type": "boolean",
+      "description": "Enabling code coverage collection. Default is false"
+    },
+    "Configuration": {
+      "type": "string",
+      "description": "Configuration for dotnet commands. Default is 'Debug' (local) or 'Release' (server)",
+      "enum": [
+        "Debug",
+        "Release"
+      ]
+    },
+    "PackagesFilter": {
+      "type": "string",
+      "description": "Space separated strings for outdated and beta checks to narrow search. Filter works as contains function. If any string match - package is included in results. Default is 'CloudTek Core'"
+    },
+    "ReadyToRun": {
+      "type": "boolean",
+      "description": "Ready to Run for dotnet commands. Default is false"
+    },
+    "Runtime": {
+      "type": "string",
+      "description": "Runtime for dotnet commands. Default is empty string. Empty string will be ignored during publishing"
+    },
+    "TestFilter": {
+      "type": "string",
+      "description": "Test filter. Default is 'Flaky!=true'"
+    }
+  },
   "definitions": {
-    "build": {
-      "type": "object",
+    "Host": {
+      "type": "string",
+      "enum": [
+        "AppVeyor",
+        "AzurePipelines",
+        "Bamboo",
+        "Bitbucket",
+        "Bitrise",
+        "GitHubActions",
+        "GitLab",
+        "Jenkins",
+        "Rider",
+        "SpaceAutomation",
+        "TeamCity",
+        "Terminal",
+        "TravisCI",
+        "VisualStudio",
+        "VSCode"
+      ]
+    },
+    "ExecutableTarget": {
+      "type": "string",
+      "enum": [
+        "All",
+        "BetaCheck",
+        "BuildDependencyTree",
+        "Clean",
+        "CommitCheck",
+        "Compile",
+        "DotnetOutdatedInstall",
+        "Format",
+        "FormatAnalyzersCheck",
+        "FormatCheck",
+        "HuskyInstall",
+        "InitializeCoverageCollector",
+        "IntegrationTests",
+        "OutdatedCheck",
+        "Pack",
+        "Publish",
+        "Restore",
+        "RunChecks",
+        "Test",
+        "UnitTests",
+        "UpdateOutdated",
+        "VulnerableScan"
+      ]
+    },
+    "Verbosity": {
+      "type": "string",
+      "description": "",
+      "enum": [
+        "Verbose",
+        "Normal",
+        "Minimal",
+        "Quiet"
+      ]
+    },
+    "NukeBuild": {
       "properties": {
-        "BuildNumber": {
-          "type": "string",
-          "description": "BuildNumber"
-        },
-        "CollectCoverage": {
-          "type": "boolean"
-        },
-        "Configuration": {
-          "type": "string",
-          "description": "Configuration to _build - Default is 'Debug' (local) or 'Release' (server)",
-          "enum": [
-            "Debug",
-            "Release"
-          ]
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -30,41 +103,12 @@
           "description": "Shows the help text for this build assembly"
         },
         "Host": {
-          "type": "string",
           "description": "Host for execution. Default is 'automatic'",
-          "enum": [
-            "AppVeyor",
-            "AzurePipelines",
-            "Bamboo",
-            "Bitbucket",
-            "Bitrise",
-            "GitHubActions",
-            "GitLab",
-            "Jenkins",
-            "Rider",
-            "SpaceAutomation",
-            "TeamCity",
-            "Terminal",
-            "TravisCI",
-            "VisualStudio",
-            "VSCode"
-          ]
-        },
-        "NoBuild": {
-          "type": "boolean"
+          "$ref": "#/definitions/Host"
         },
         "NoLogo": {
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
-        },
-        "NoRestore": {
-          "type": "boolean"
-        },
-        "NugetApiKey": {
-          "type": "string"
-        },
-        "NugetApiUrl": {
-          "type": "string"
         },
         "Partition": {
           "type": "string",
@@ -89,79 +133,22 @@
           "type": "array",
           "description": "List of targets to be skipped. Empty list skips all dependencies",
           "items": {
-            "type": "string",
-            "enum": [
-              "All",
-              "BuildDependencyTree",
-              "Clean",
-              "CommitLintCheck",
-              "Compile",
-              "Format",
-              "FormatAnalyzersCheck",
-              "FormatCheck",
-              "HuskyInstall",
-              "IntegrationTests",
-              "Pack",
-              "PackagesBetaCheck",
-              "PackagesOutdatedCheck",
-              "Publish",
-              "Push",
-              "Restore",
-              "RunChecks",
-              "Test",
-              "UnitTests"
-            ]
+            "$ref": "#/definitions/ExecutableTarget"
           }
-        },
-        "SkipIntegrationTests": {
-          "type": "boolean"
-        },
-        "SkipUnitTests": {
-          "type": "boolean"
-        },
-        "Solution": {
-          "type": "string",
-          "description": "Path to a solution file that is automatically loaded"
         },
         "Target": {
           "type": "array",
           "description": "List of targets to be invoked. Default is '{default_target}'",
           "items": {
-            "type": "string",
-            "enum": [
-              "All",
-              "BuildDependencyTree",
-              "Clean",
-              "CommitLintCheck",
-              "Compile",
-              "Format",
-              "FormatAnalyzersCheck",
-              "FormatCheck",
-              "HuskyInstall",
-              "IntegrationTests",
-              "Pack",
-              "PackagesBetaCheck",
-              "PackagesOutdatedCheck",
-              "Publish",
-              "Push",
-              "Restore",
-              "RunChecks",
-              "Test",
-              "UnitTests"
-            ]
+            "$ref": "#/definitions/ExecutableTarget"
           }
         },
         "Verbosity": {
-          "type": "string",
           "description": "Logging verbosity during build execution. Default is 'Normal'",
-          "enum": [
-            "Minimal",
-            "Normal",
-            "Quiet",
-            "Verbose"
-          ]
+          "$ref": "#/definitions/Verbosity"
         }
       }
     }
-  }
+  },
+  "$ref": "#/definitions/NukeBuild"
 }

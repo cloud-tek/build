@@ -1,22 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+   <TargetFramework>net8.0</TargetFramework>
     <RepositoryUrl>https://github.com/cloud-tek/build</RepositoryUrl>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
 
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <PropertyGroup>
+    <!--Use after azure artifacts supports snupkg-->
+    <!--
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    -->
+    <!--Workaround for lack of snupkg support-->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="7.0.6"/>
-    <PackageReference Include="SemVer" Version="2.3.0"/>
+    <InternalsVisibleTo Include="CloudTek.Build.Tests" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
+    <PackageReference Include="Nuke.Common" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="SemVer" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".template\**" />
+    <None Include="build/**" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+  <Import Project="..\Version.targets" />
 </Project>
