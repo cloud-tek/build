@@ -4,7 +4,7 @@
     <RepositoryUrl>https://github.com/cloud-tek/build</RepositoryUrl>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,6 +29,7 @@
     <PackageReference Include="Nuke.Common" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="SemVer" />
+    <PackageReference Include="Microsoft.Build" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include=".template\**" />

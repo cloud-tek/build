@@ -1,6 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "properties": {
+    "AppInsightsConnectionString": {
+      "type": "string",
+      "description": "Application insights connection string"
+    },
     "BuildNumber": {
       "type": "string",
       "description": "A buildNumber for beta suffix calculation. Default is empty"
@@ -21,13 +25,25 @@
       "type": "string",
       "description": "Space separated strings for outdated and beta checks to narrow search. Filter works as contains function. If any string match - package is included in results. Default is 'CloudTek Core'"
     },
+    "PublishAsZip": {
+      "type": "boolean",
+      "description": "Publish artifact(s) as .zip file(s)"
+    },
+    "PublishInParallel": {
+      "type": "boolean",
+      "description": "Publish artifacts in parallel"
+    },
+    "PublishTests": {
+      "type": "boolean",
+      "description": "Publish test assemblies as artifacts"
+    },
     "ReadyToRun": {
       "type": "boolean",
       "description": "Ready to Run for dotnet commands. Default is false"
     },
     "Runtime": {
       "type": "string",
-      "description": "Runtime for dotnet commands. Default is empty string. Empty string will be ignored during publishing"
+      "description": "Runtime for dotnet commands. Defaults to an empty string (ignored during dotnet publish)"
     },
     "TestFilter": {
       "type": "string",

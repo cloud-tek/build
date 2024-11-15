@@ -10,6 +10,13 @@ namespace CloudTek.Build
   /// </summary>
   public class Repository
   {
+    private readonly GitRepository? _repository;
+
+    /// <summary>
+    /// The name of the GIT repository
+    /// </summary>
+    public string Name => _repository?.ToString() ?? "unknown";
+
     /// <summary>
     /// The root execution directory
     /// </summary>
@@ -35,14 +42,19 @@ namespace CloudTek.Build
     public virtual AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 
     /// <summary>
-    /// The directory where all packages are emitted to
+    /// The directory where all package artifacts are emitted to
     /// </summary>
-    public virtual AbsolutePath PackagesDirectory => ArtifactsDirectory / "packages";
+    public virtual AbsolutePath ArtifactPackagesDirectory => ArtifactsDirectory / "packages";
 
     /// <summary>
-    /// The directory where all services are emitted to
+    /// The directory where all service artifacts are emitted to
     /// </summary>
-    public virtual AbsolutePath ServicesDirectory => ArtifactsDirectory / "services";
+    public virtual AbsolutePath ArtifactServicesDirectory => ArtifactsDirectory / "services";
+
+    /// <summary>
+    /// The directory where all test artifacts are emitted to
+    /// </summary>
+    public virtual AbsolutePath ArtifactTestsDirectory => ArtifactsDirectory / "tests";
 
     /// <summary>
     /// The directory where test results are stored
@@ -62,13 +74,16 @@ namespace CloudTek.Build
     /// <summary>
     /// The default constructor
     /// </summary>
+    /// <param name="repository"></param>
     /// <param name="solution"></param>
-    public Repository(Solution solution)
+    public Repository(Solution solution, GitRepository? repository)
     {
       Projects = solution.AllProjects
         .Where(p => p.Name != "_build")
         .Select(p => new Primitives.Project(p.Path))
         .ToList();
+
+      _repository = repository;
     }
 
     // TODO: convert to extension method?

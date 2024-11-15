@@ -45,9 +45,17 @@ namespace CloudTek.Build
     /// </summary>
     protected readonly VersioningStrategy VersioningStrategy;
 
-    private Repository? _repository;
-
     private Solution? _solution;
+
+    /// <summary>
+    /// Internal flag indicating whether the solution has been built. Will result in appending --no-build to all subsequent dotnet CLI invocations
+    /// </summary>
+    internal bool SolutionBuilt;
+
+    /// <summary>
+    /// Internal flag indicating whether the solution has been restored. Will result in appending --no-restore to all subsequent dotnet CLI invocations
+    /// </summary>
+    internal bool SolutionRestored;
 
     /// <summary>
     /// Default constructor
@@ -99,18 +107,6 @@ namespace CloudTek.Build
     public virtual Configuration Configuration { get; set; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     /// <summary>
-    /// The runtime to be used for publishing
-    /// </summary>
-    [Parameter("Runtime for dotnet commands. Default is empty string. Empty string will be ignored during publishing")]
-    public virtual string Runtime { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Ready to Run flag, to reduce JIT'ing
-    /// </summary>
-    [Parameter("Ready to Run for dotnet commands. Default is false")]
-    public virtual bool ReadyToRun { get; set; } = false;
-
-    /// <summary>
     /// CI Build number
     /// </summary>
     [Parameter("A buildNumber for beta suffix calculation. Default is empty")]
@@ -130,14 +126,12 @@ namespace CloudTek.Build
     /// <summary>
     /// Repository information for SmartBuild
     /// </summary>
-    public Repository Repository => _repository ??= new Repository(Solution);
+    public Repository Repository { get; private set; } = default!;
 
     /// <summary>
     /// GitRepository information for SmartBuild
     /// </summary>
     [GitRepository] public GitRepository? GitRepository { get; private set; }
-
-    private string GitRepositoryName => GitRepository?.ToString() ?? "unknown";
 
     /// <summary>
     /// dotnet nuke --target All
@@ -151,7 +145,7 @@ namespace CloudTek.Build
         });
 
     /// <summary>
-    /// Executed whenever a build is created. Ensures logo is displayed.
+    /// Executed whenever a build is created. Ensures the build is initialized and the logo is displayed.
     /// </summary>
     protected override void OnBuildCreated()
     {
@@ -165,6 +159,9 @@ namespace CloudTek.Build
         "https://github.com/cloud-tek/build");
 
       Console.WriteLine("〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰〰");
+
+      Repository = new Repository(Solution, GitRepository);
+      InitializeTelemetry();
 
       base.OnBuildCreated();
     }
@@ -200,15 +197,17 @@ namespace CloudTek.Build
     /// </summary>
     protected override void OnBuildFinished()
     {
-      base.OnBuildFinished();
       ReportDuration(
         "Total",
-        GitRepositoryName,
+        Repository.Name,
         IsSuccessful,
         _stopwatches["Total"].ElapsedMilliseconds);
-      LoggerFactory.Dispose();
-      Meter.Dispose();
-      MetricsProvider.Dispose();
+
+      LoggerFactory?.Dispose();
+      Meter?.Dispose();
+      MetricsProvider?.Dispose();
+
+      base.OnBuildFinished();
     }
 
     private static Solution GetSolution()

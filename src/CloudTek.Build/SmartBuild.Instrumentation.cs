@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.Logging;
+using Nuke.Common;
+using Nuke.Common.Utilities;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -10,50 +12,75 @@ namespace CloudTek.Build;
 
 public partial class SmartBuild
 {
-  private const string ConnectionString = "InstrumentationKey=c28d10d1-b31e-4d2e-a22b-8bc733a85cf4;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;ApplicationId=6c27684a-8a28-48e8-86d8-b9c60a98d8e4";
-
   /// <summary>
-  /// The OpenTelemetry Meter
+  /// The OTEL Meter
   /// </summary>
-  public static readonly Meter Meter = new("CloudTek.Build");
+  private static readonly Meter Meter = new("CloudTek.Build");
 
-  private static readonly ResourceBuilder ResourceBuilder = ResourceBuilder.CreateDefault().AddAttributes(
-    new Dictionary<string, object> { { "service.name", IsLocalBuild ? "DeveloperMachine" : "BuildAgent" } });
-
-  /// <summary>
-  /// The LoggerFactory
-  /// </summary>
-  public static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
-    builder =>
+  private static readonly ResourceBuilder ResourceBuilder = ResourceBuilder
+    .CreateDefault()
+    .AddAttributes(new Dictionary<string, object>
     {
-      builder.AddOpenTelemetry(
-        options =>
-        {
-          options.SetResourceBuilder(ResourceBuilder);
-          options.AddAzureMonitorLogExporter(configure => { configure.ConnectionString = ConnectionString; });
-        });
+      { "service.name", IsLocalBuild ? "DeveloperMachine" : "BuildAgent" }
     });
 
   private readonly Dictionary<string, Stopwatch> _stopwatches = new();
 
-  internal readonly MeterProvider MetricsProvider = Sdk.CreateMeterProviderBuilder()
-    .AddMeter(Meter.Name)
-    .SetResourceBuilder(ResourceBuilder)
-    .AddAzureMonitorMetricExporter(
-      configure =>
-      {
-        configure.ConnectionString = ConnectionString;
-      }).Build();
-
   internal readonly Histogram<long> TargetDuration = Meter.CreateHistogram<long>("TargetDuration");
 
-  internal void ReportDuration(string target, string repository, bool succeed, long elapsedMilliseconds)
+  /// <summary>
+  /// The LoggerFactory
+  /// </summary>
+  internal ILoggerFactory LoggerFactory = default!;
+
+  /// <summary>
+  /// The Metrics provider
+  /// </summary>
+  private MeterProvider MetricsProvider = default!;
+
+  /// <summary>
+  /// Parameter used for providing appinsights connection string for telemetry
+  /// </summary>
+  [Parameter("Application insights connection string")]
+  public virtual string? AppInsightsConnectionString { get; set; } = string.Empty;
+
+  private void InitializeTelemetry()
+  {
+    if (!AppInsightsConnectionString.IsNullOrEmpty())
+    {
+      LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+        builder =>
+        {
+          builder.AddOpenTelemetry(
+            options =>
+            {
+              options.SetResourceBuilder(ResourceBuilder);
+              options.AddAzureMonitorLogExporter(
+                configure =>
+                {
+                  configure.ConnectionString = AppInsightsConnectionString;
+                });
+            });
+        });
+
+      MetricsProvider = Sdk.CreateMeterProviderBuilder()
+        .AddMeter(Meter.Name)
+        .SetResourceBuilder(ResourceBuilder)
+        .AddAzureMonitorMetricExporter(
+          configure =>
+          {
+            configure.ConnectionString = AppInsightsConnectionString;
+          }).Build();
+    }
+  }
+
+  internal void ReportDuration(string target, string repository, bool success, long elapsedMilliseconds)
   {
     TargetDuration.Record(
       elapsedMilliseconds,
       new KeyValuePair<string, object?>("Target", target),
       new KeyValuePair<string, object?>("Repository", repository),
-      new KeyValuePair<string, object?>("Succeed", succeed));
+      new KeyValuePair<string, object?>("Success", success));
   }
 
   /// <summary>
@@ -74,7 +101,7 @@ public partial class SmartBuild
   {
     base.OnTargetSucceeded(target);
     _stopwatches[target].Stop();
-    ReportDuration(target, GitRepositoryName, true, _stopwatches[target].ElapsedMilliseconds);
+    ReportDuration(target, Repository.Name, true, _stopwatches[target].ElapsedMilliseconds);
   }
 
   /// <summary>
@@ -85,6 +112,6 @@ public partial class SmartBuild
   {
     base.OnTargetFailed(target);
     _stopwatches[target].Stop();
-    ReportDuration(target, GitRepositoryName, false, _stopwatches[target].ElapsedMilliseconds);
+    ReportDuration(target, Repository.Name, false, _stopwatches[target].ElapsedMilliseconds);
   }
 }

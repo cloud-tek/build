@@ -61,10 +61,12 @@ namespace CloudTek.Build
             .SetResultsDirectory(Repository.TestResultsDirectory)
             .SetProcessToolPath(DotNetPath)
             .SetRuntime(Runtime)
+            .SetNoRestore(SolutionRestored)
+            .SetNoBuild(SolutionBuilt)
             .Execute(s => s.SetProcessEnvironmentVariables(EnvironmentVariables)),
           CollectCoverage,
           s => s.SetDataCollector(
-            "XPlat Code Coverage;Format=Cobertura;IncludeTestAssembly=false;ExcludeAssembliesWithoutSources=MissingAll"))
+            "XPlat Code Coverage;Format=Cobertura;IncludeTestAssembly=false;ExcludeAssembliesWithoutSources=MissingAll;ExcludeByFile=**/*.g.cs;Exclude=[*]*Migrations*;"))
         .SetFilter(
           (string.IsNullOrWhiteSpace(TestFilter) ? "" : TestFilter + "&") + (isIntegrationTests
             ? "FullyQualifiedName~Integration"

@@ -8,5 +8,7 @@ namespace CloudTek.Build.Versioning
   public abstract partial class VersioningStrategy
   {
     internal abstract Func<DotNetPackSettings, SmartBuild, DotNetPackSettings> SetDotNetPackVersion { get; }
+
+    internal abstract Func<DotNetPublishSettings, SmartBuild, DotNetPublishSettings> SetDotNetPublishVersion { get; }
   }
 }

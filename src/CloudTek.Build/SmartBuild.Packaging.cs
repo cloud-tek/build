@@ -1,3 +1,4 @@
+using CloudTek.Build.Packaging;
 using Nuke.Common;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
@@ -15,6 +16,8 @@ public abstract partial class SmartBuild : NukeBuild
       () =>
       {
         PackageManager.Restore(this);
+
+        SolutionRestored = true;
       });
 
   /// <summary>
@@ -50,7 +53,7 @@ public abstract partial class SmartBuild : NukeBuild
 
         if (outputs != null)
         {
-          VulnerabilityReporter.ReportScan(GitRepositoryName, outputs.Select(p => p.Text).ToList());
+          VulnerabilityScanner.ReportScan(this, Repository.Name, outputs);
         }
       });
 

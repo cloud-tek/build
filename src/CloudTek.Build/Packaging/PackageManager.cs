@@ -80,8 +80,9 @@ public sealed class PackageManager
       s => s
         .SetConfiguration(configuration)
         .Execute(settings => strategy.SetDotNetPackVersion(settings, build))
-        .SetNoRestore(true)
-        .SetOutputDirectory(repository.PackagesDirectory)
+        .SetNoRestore(build.SolutionRestored)
+        .SetNoBuild(build.SolutionBuilt)
+        .SetOutputDirectory(repository.ArtifactPackagesDirectory)
         .SetProcessToolPath(DotNetPath));
   }
 
@@ -174,7 +175,7 @@ public sealed class PackageManager
     }
     else
     {
-      Console.WriteLine("No beta packages detected");
+      Log.Information("No beta packages detected");
     }
   }
 
@@ -196,7 +197,7 @@ public sealed class PackageManager
     }
     else
     {
-      Console.WriteLine("No outdated packages detected");
+      Log.Information("No outdated packages detected");
     }
   }
 }

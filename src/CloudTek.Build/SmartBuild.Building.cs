@@ -43,8 +43,10 @@ namespace CloudTek.Build
             s => s
               .SetProcessWorkingDirectory(Solution.Directory)
               .SetConfiguration(Configuration)
-              .SetNoRestore(true)
+              .SetNoRestore(SolutionRestored)
               .SetProcessToolPath(DotNetPath));
+
+          SolutionBuilt = true;
         });
   }
 }

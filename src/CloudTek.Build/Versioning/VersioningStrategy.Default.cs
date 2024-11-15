@@ -22,6 +22,15 @@ public abstract partial class VersioningStrategy
               .SetVersionSuffix(
                 GetBetaBuildSuffix(build.GitRepository!, BetaSuffix, build.BuildNumber)));
 
+    internal override Func<DotNetPublishSettings, SmartBuild, DotNetPublishSettings> SetDotNetPublishVersion { get; } =
+      (settings, build) =>
+        settings
+          .When(
+            build.Repository.ShouldAddBetaSuffix(build.GitRepository),
+            (s) => s
+              .SetVersionSuffix(
+                GetBetaBuildSuffix(build.GitRepository!, BetaSuffix, build.BuildNumber)));
+
     private static string GetBetaBuildSuffix(GitRepository git, string suffix, string buildNumber)
     {
       if (string.IsNullOrEmpty(suffix))
