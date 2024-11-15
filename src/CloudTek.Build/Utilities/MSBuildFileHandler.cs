@@ -1,7 +1,6 @@
-using CloudTek.Build.Utilities;
 using Nuke.Common.IO;
 
-namespace CloudTek.Build.Packaging
+namespace CloudTek.Build.Utilities
 {
   /// <summary>
   /// Utility used to parse Directory.Build.(props | targets)
