@@ -1,6 +1,6 @@
 namespace CloudTek.Build.Packaging;
 
-internal enum PackageType
+internal enum DependencyType
 {
   Top,
   Transitive

@@ -92,10 +92,10 @@
         "Publish",
         "Restore",
         "RunChecks",
+        "Scan",
         "Test",
         "UnitTests",
-        "UpdateOutdated",
-        "VulnerableScan"
+        "UpdateOutdated"
       ]
     },
     "Verbosity": {

@@ -16,7 +16,7 @@ namespace CloudTek.Build.Packaging;
 /// </summary>
 public sealed class PackageManager
 {
-  private static readonly Regex ProjectRegex = new("(») (.*)");
+  private static readonly Regex ProjectRegex = new("(») (.*)", RegexOptions.Compiled);
   private static readonly Regex BetaRegex = new(" \\d+.\\d+.\\d+-", RegexOptions.Compiled);
   private static readonly Regex OutdatedRegex = new("-> \\S", RegexOptions.Compiled);
 

@@ -28,7 +28,7 @@ namespace CloudTek.Build
     protected virtual Target CommitCheck => _ => _
       .DependsOn(HuskyInstall)
       .OnlyWhenStatic(() => GitRepository != null)
-      .Description("Run husky to check commitlint rules (if exists)")
+      .Description("Run husky to check commit lint rules (if exists)")
       .Executes(
         () =>
         {

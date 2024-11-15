@@ -1,7 +1,6 @@
 using CloudTek.Build.Packaging;
 using Nuke.Common;
 using Serilog;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 namespace CloudTek.Build;
 
@@ -31,30 +30,25 @@ public abstract partial class SmartBuild : NukeBuild
     .Executes(
       () =>
       {
-        Log.Information($"Packing NuGet packages...");
+        Log.Information($"Packing NuGet packages ...");
 
         PackageManager.Pack(Repository, this, VersioningStrategy, Configuration);
       });
 
   /// <summary>
   /// dotnet nuke --target VulnerableScan
-  /// Run dotnet native listing for vulnerable packages and report it to ApplicationInsights
+  /// Runs dotnet list package --vulnerable and reports results via telemetry
   /// </summary>
-  protected virtual Target VulnerableScan => _ => _
+  protected virtual Target Scan => _ => _
     .Description(
-      "Run dotnet list for vulnerable packages and report it to ApplicationInsights")
+      "Performs 'dotnet list package --vulnerable' and reports results via telemetry")
     .Before(RunChecks)
     .Executes(
       () =>
       {
-        var outputs = DotNet(
-          "list package --vulnerable --include-transitive --source https://api.nuget.org/v3/index.json",
-          Solution.Directory);
+        Log.Information($"Scanning dependencies for vulnerabilities ...");
 
-        if (outputs != null)
-        {
-          VulnerabilityScanner.ReportScan(this, Repository.Name, outputs);
-        }
+        VulnerabilityScanner.Scan(this);
       });
 
   /// <summary>
