@@ -35,5 +35,16 @@
     <EmbeddedResource Include=".template\**" />
     <None Include="build/**" Pack="true" PackagePath="build/" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".templates\.husky\commit-msg" />
+    <Content Include=".templates\.husky\csx\.gitkeep" />
+    <EmbeddedResource Include=".templates\.husky\post-checkout" />
+    <EmbeddedResource Include=".templates\.husky\task-runner.json" />
+    <EmbeddedResource Include=".templates\.husky\_\husky.sh" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".templates\.husky\csx\commit-lint-ci.csx" />
+    <EmbeddedResource Include=".templates\.husky\csx\commit-lint.csx" />
+  </ItemGroup>
   <Import Project="..\Version.targets" />
 </Project>

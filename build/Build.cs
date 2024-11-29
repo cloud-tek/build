@@ -14,8 +14,7 @@ public class Build : SmartBuild<VersioningStrategy.GitVersion>
   // ReSharper disable once UnusedAutoPropertyAccessor.Global
   public GitVersion GitVersion { get; set; } = default!;
 
-  // TODO: ensure this is override'able
-  // public override Regex PackageChecksRegex { get; init; } = new Regex("^Nuke", RegexOptions.Compiled);
+  public override string PackagesFilter { get; init; } = "Nuke";
 
   public static int Main() => Execute<Build>(x => x.Compile);
 }

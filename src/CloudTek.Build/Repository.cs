@@ -86,17 +86,17 @@ namespace CloudTek.Build
       _repository = repository;
     }
 
-    // TODO: convert to extension method?
     /// <summary>
-    /// Checks if the artifacts from current version should append a sem-ver beta suffix
+    /// Checks if the artifacts from current branch should append a semver pre-release suffix
     /// </summary>
+    /// <see cref="https://semver.org/"/>
     /// <param name="gitRepository"></param>
     /// <returns></returns>
 #pragma warning disable CA1822
-    public bool ShouldAddBetaSuffix(GitRepository? gitRepository)
+    public bool ShouldAddBetaSuffix(GitRepository? git)
 #pragma warning restore CA1822
     {
-      return gitRepository != null && !(gitRepository.IsOnMasterBranch() || gitRepository.IsOnMainBranch());
+      return git != null && !(git.IsOnMasterBranch() || git.IsOnMainBranch());
     }
   }
 }

@@ -27,7 +27,7 @@ namespace CloudTek.Build
     /// Initializes the code-coverage collector
     /// </summary>
     protected virtual Target InitializeCoverageCollector =>
-      _ => _.Executes(InitializeCoverageCollectorMethod);
+      _ => _.Executes(InitializeCoverletCollector);
 
     /// <summary>
     /// dotnet nuke --target UnitTests
@@ -73,11 +73,11 @@ namespace CloudTek.Build
             : "FullyQualifiedName!~Integration"));
     }
 
-    private void InitializeCoverageCollectorMethod()
+    private void InitializeCoverletCollector()
     {
       if (CollectCoverage && !_coverletAdded)
       {
-        Log.Information("Initializing coverlet.collector package for coverage collection");
+        Log.Information("Initializing coverlet.collector package in all test projects ...");
 
         Repository.Projects.Where(p => p.Type == ProjectType.Test && p.ProjectProperties.HasCodeCoveragePackage != true)
           .ForEach(

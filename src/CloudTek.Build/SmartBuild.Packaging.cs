@@ -36,22 +36,6 @@ public abstract partial class SmartBuild : NukeBuild
       });
 
   /// <summary>
-  /// dotnet nuke --target VulnerableScan
-  /// Runs dotnet list package --vulnerable and reports results via telemetry
-  /// </summary>
-  protected virtual Target Scan => _ => _
-    .Description(
-      "Performs 'dotnet list package --vulnerable' and reports results via telemetry")
-    .Before(RunChecks)
-    .Executes(
-      () =>
-      {
-        Log.Information($"Scanning dependencies for vulnerabilities ...");
-
-        VulnerabilityScanner.Scan(this);
-      });
-
-  /// <summary>
   /// dotnet nuke --target BuildDependencyTree
   /// Determines the dependencies of the soltion for BETA/Outdated/Vulnerability checks
   /// </summary>

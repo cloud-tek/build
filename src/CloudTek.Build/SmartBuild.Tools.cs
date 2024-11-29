@@ -1,6 +1,13 @@
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using CloudTek.Build.Internals;
 using Nuke.Common;
+using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Utilities;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -33,22 +40,26 @@ namespace CloudTek.Build
       .Executes(
         async () =>
         {
-          var buildPath = RootDirectory / ".husky";
+          var path = RootDirectory / ".husky";
 
-          if (await CopyResourcesIfFolderDoesntExist(buildPath, ".template..husky"))
+          if (!path.Exists())
           {
+            await Assembly.GetExecutingAssembly().CopyResources(path, ".templates..husky");
+
             DotNetToolInstall(
               c =>
                 c.SetPackageName("husky")
                   .SetProcessArgumentConfigurator(p => p.Add("--create-manifest-if-needed")));
+
+            DotNetToolRestore();
+            DotNet("husky install", RootDirectory);
+
+            Log.Information("husky installed");
           }
           else
           {
-            Log.Information("There is already a .husky directory, skipping setup");
+            Log.Information("husky already installed");
           }
-
-          DotNet("husky install", Solution.Directory);
-          DotNetToolRestore();
         });
   }
 }

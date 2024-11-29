@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Nuke.Common.Tooling;
 
 namespace CloudTek.Build.Extensions;

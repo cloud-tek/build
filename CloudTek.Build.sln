@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Testing.Tests", "t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tool", "src\CloudTek.Build.Tool\CloudTek.Build.Tool.csproj", "{199BBE82-46CB-449E-9CA8-F84121F02A79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTek.Build.Tests", "tests\CloudTek.Build.Tests\CloudTek.Build.Tests.csproj", "{0A53B661-7533-49BF-AA18-7C91D610BC8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,8 +58,14 @@ Global
 		{199BBE82-46CB-449E-9CA8-F84121F02A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{199BBE82-46CB-449E-9CA8-F84121F02A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{199BBE82-46CB-449E-9CA8-F84121F02A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A53B661-7533-49BF-AA18-7C91D610BC8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A53B661-7533-49BF-AA18-7C91D610BC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A53B661-7533-49BF-AA18-7C91D610BC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A53B661-7533-49BF-AA18-7C91D610BC8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{86252E7B-8F95-4724-BD64-E983A572AAFC} = {122BAE95-24DE-4C31-B0EE-B5D160B6192B}
+		{0A53B661-7533-49BF-AA18-7C91D610BC8F} = {122BAE95-24DE-4C31-B0EE-B5D160B6192B}
+		{D2584BD5-61CB-4017-9901-4762648761BF} = {122BAE95-24DE-4C31-B0EE-B5D160B6192B}
 	EndGlobalSection
 EndGlobal

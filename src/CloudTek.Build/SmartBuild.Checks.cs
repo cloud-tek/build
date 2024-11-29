@@ -1,3 +1,5 @@
+using System.IO;
+using CloudTek.Build.Packaging;
 using Nuke.Common;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
@@ -63,6 +65,22 @@ namespace CloudTek.Build
         () =>
         {
           PackageManager.CheckOutdatedPackages();
+        });
+
+    /// <summary>
+    /// dotnet nuke --target VulnerableScan
+    /// Runs dotnet list package --vulnerable and reports results via telemetry
+    /// </summary>
+    protected virtual Target VulnerabilityCheck => _ => _
+      .Description(
+        "Performs 'dotnet list package --vulnerable' and reports results via telemetry")
+      .Before(RunChecks)
+      .Executes(
+        () =>
+        {
+          Log.Information($"Scanning dependencies for vulnerabilities ...");
+
+          VulnerabilityScanner.Scan(this);
         });
   }
 }

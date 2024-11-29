@@ -85,10 +85,13 @@ public static class CommitMessageAnalyzer
     switch (result)
     {
       case CommitMessageAnalysisResult.Ok:
+        Console.WriteLine("Commit message validated");
         return 0;
       case CommitMessageAnalysisResult.Invalid:
+        Console.WriteLine("Commit message is invalid");
         return 1;
       case CommitMessageAnalysisResult.Empty:
+        Console.WriteLine("Commit message is empty");
         return 2;
       default:
         throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
