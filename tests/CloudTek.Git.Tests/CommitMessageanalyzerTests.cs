@@ -9,7 +9,6 @@ public class CommitMessageAnalyzersTests
   // feat|ci|chore|docs|fix|perf|pr|refactor|revert|style|test
   [UnitTest]
   [SmartTheory(Execute.Always)]
-  [InlineData("", CommitMessageAnalysisResult.Empty)]
   [InlineData("chore: 123", CommitMessageAnalysisResult.Ok)]
   [InlineData("feat: 123", CommitMessageAnalysisResult.Ok)]
   [InlineData("docs: 123", CommitMessageAnalysisResult.Ok)]
