@@ -87,9 +87,14 @@ public static class CommitMessageAnalyzer
       case CommitMessageAnalysisResult.Ok:
         return 0;
       case CommitMessageAnalysisResult.Invalid:
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("The git log contains at least one invalid commit message");
+        Console.WriteLine("All commits should follow the conventional commits convention");
+        Console.WriteLine("Example: 'feat(scope): subject' or 'feat: subject'");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
+        Console.ResetColor();
         return 1;
-      case CommitMessageAnalysisResult.Empty:
-        return 2;
       default:
         throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
     }
@@ -102,11 +107,6 @@ public static class CommitMessageAnalyzer
   /// <returns>An enum containing the analysis result</returns>
   public static CommitMessageAnalysisResult Analyze(string message)
   {
-    if (string.IsNullOrEmpty(message))
-    {
-      return CommitMessageAnalysisResult.Empty;
-    }
-
     if (ExceptionMessages.Any(
           msg => message
             .ToLower(CultureInfo.InvariantCulture)
@@ -117,16 +117,15 @@ public static class CommitMessageAnalyzer
 
     if (Constants.ConventionalCommitsMessageRegex().IsMatch(message))
     {
+      Console.ForegroundColor = ConsoleColor.Green;
+      Console.WriteLine($"Commit: {message} [OK]");
+      Console.ResetColor();
       return CommitMessageAnalysisResult.Ok;
     }
 
     Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine("Invalid commit messages:");
+    Console.WriteLine($"Commit: {message} [INVALID]");
     Console.ResetColor();
-    Console.WriteLine(message);
-    Console.WriteLine("e.g: 'feat(scope): subject' or 'feat: subject'");
-    Console.ForegroundColor = ConsoleColor.Gray;
-    Console.WriteLine("more info: https://www.conventionalcommits.org/en/v1.0.0/");
 
     return CommitMessageAnalysisResult.Invalid;
   }
