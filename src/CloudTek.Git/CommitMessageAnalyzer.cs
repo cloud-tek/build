@@ -39,6 +39,11 @@ public static class CommitMessageAnalyzer
     return HandleResult(result);
   }
 
+  /// <summary>
+  /// Executes the git log command and analyzes the commit messages
+  /// </summary>
+  /// <param name="args"></param>
+  /// <returns></returns>
   private static CommitMessageAnalysisResult RunGitLog(params string[] args)
   {
     var procStartInfo = new ProcessStartInfo("git", $"log {args[0]} --format=%s")
