@@ -11,11 +11,6 @@ public enum CommitMessageAnalysisResult
   Ok = 0,
 
   /// <summary>
-  /// No commit message was provided
-  /// </summary>
-  Empty,
-
-  /// <summary>
   /// Commit message is invalid
   /// </summary>
   Invalid,
