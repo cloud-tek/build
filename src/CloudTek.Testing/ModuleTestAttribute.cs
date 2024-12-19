@@ -3,7 +3,7 @@ using Xunit.Sdk;
 namespace CloudTek.Testing;
 
 /// <summary>
-/// Attribute used to mark a test as a module acceptance test.
+///   Attribute used to mark a test as a module acceptance test.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 [TraitDiscoverer(ModuleTestDiscoverer.TypeName, AssemblyInfo.Name)]
@@ -11,7 +11,7 @@ namespace CloudTek.Testing;
 public class ModuleTestAttribute : Attribute, ITraitAttribute
 {
   /// <summary>
-  /// The category passed to the dotnet test's '--filter' argument
+  ///   The category passed to the dotnet test's '--filter' argument
   /// </summary>
   public const string Category = "ModuleTests";
 }

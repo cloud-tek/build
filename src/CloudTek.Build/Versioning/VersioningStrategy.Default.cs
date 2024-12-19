@@ -16,7 +16,7 @@ public abstract partial class VersioningStrategy
     internal override Func<DotNetPackSettings, SmartBuild, DotNetPackSettings> SetDotNetPackVersion { get; } =
       (settings, build) =>
         settings
-          .When(
+          .ExecuteWhen(
             build.Repository.ShouldAddBetaSuffix(build.GitRepository),
             (s) => s
               .SetVersionSuffix(
@@ -25,7 +25,7 @@ public abstract partial class VersioningStrategy
     internal override Func<DotNetPublishSettings, SmartBuild, DotNetPublishSettings> SetDotNetPublishVersion { get; } =
       (settings, build) =>
         settings
-          .When(
+          .ExecuteWhen(
             build.Repository.ShouldAddBetaSuffix(build.GitRepository),
             (s) => s
               .SetVersionSuffix(

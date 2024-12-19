@@ -7,6 +7,7 @@ using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Utilities;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 namespace CloudTek.Build
@@ -32,17 +33,34 @@ namespace CloudTek.Build
     public virtual bool PublishAsZip { get; set; }
 
     /// <summary>
-    /// Flag indicating whether the dotnet publish products should include test assemblies
-    /// </summary>
-    [Parameter("Publish test assemblies as artifacts")]
-    public virtual bool PublishTests { get; set; }
-
-    /// <summary>
     /// Flag indicating whether the dotnet publish products should be created in parallel. May cause concurrent file access issues.
     /// </summary>
     [Parameter("Publish artifacts in parallel")]
     public virtual bool PublishInParallel { get; set; }
 
+    /// <summary>
+    /// dotnet nuke --target PublishTests
+    /// </summary>
+    protected virtual Target PublishTests => _ => _
+      .Description("Publish test artifacts to respective /artifacts/tests subdirectory")
+      .After(Test)
+      .DependsOn(Compile)
+      .Executes(
+        () =>
+        {
+          var repositories = Repository.Projects.Where(p => p.Type == ProjectType.Test);
+          if (PublishInParallel)
+          {
+            Parallel.ForEach(repositories, PublishInternal);
+          }
+          else
+          {
+            foreach (var project in repositories)
+            {
+              PublishInternal(project);
+            }
+          }
+        });
     /// <summary>
     /// dotnet nuke --target Publish
     /// </summary>
@@ -53,18 +71,14 @@ namespace CloudTek.Build
       .Executes(
         () =>
         {
+          var repositories = Repository.Projects.Where(p => p.Type == ProjectType.Service);
           if (PublishInParallel)
           {
-            Parallel.ForEach(
-              Repository.Projects.Where(p => p.Type == ProjectType.Service || (PublishTests && p.Type == ProjectType.Test)),
-              project =>
-              {
-                PublishInternal(project);
-              });
+            Parallel.ForEach(repositories, PublishInternal);
           }
           else
           {
-            foreach (var project in Repository.Projects.Where(p => p.Type == ProjectType.Service || (PublishTests && p.Type == ProjectType.Test)))
+            foreach (var project in repositories)
             {
               PublishInternal(project);
             }
@@ -75,8 +89,8 @@ namespace CloudTek.Build
     {
       var output = project.Type switch
       {
-        ProjectType.Test => Repository.ArtifactTestsDirectory / project.Name,
-        _ => Repository.ArtifactServicesDirectory / project.Name
+        ProjectType.Test => Repository.ArtifactTestsDirectory,
+        _ => Repository.ArtifactServicesDirectory
       };
 
       DotNetPublish(
@@ -84,21 +98,21 @@ namespace CloudTek.Build
           .SetProject(project.Path)
           .Execute(settings => VersioningStrategy.SetDotNetPublishVersion(settings, this))
           .SetConfiguration(Configuration)
-          .SetOutput(output)
+          .SetOutput(output / project.Name)
           .SetPublishReadyToRun(ReadyToRun)
-          .SetRuntime(Runtime)
-          .SetNoRestore(SolutionRestored)
-          .SetNoBuild(SolutionBuilt)
-          .SetProcessToolPath(DotNetPath));
+          .SetNoRestore(SolutionRestored && string.IsNullOrEmpty(Runtime))
+          .SetNoBuild(SolutionBuilt && string.IsNullOrEmpty(Runtime))
+          .SetProcessToolPath(DotNetPath)
+          .ExecuteWhen(!Runtime.IsNullOrEmpty(), settings => settings.SetRuntime(Runtime)));
 
       if (PublishAsZip)
       {
-        output.ZipTo(
+        (output / project.Name).ZipTo(
           archiveFile: Repository.ArtifactServicesDirectory / $"{project.Name}.zip",
           fileMode: FileMode.CreateNew,
           compressionLevel: CompressionLevel.Optimal);
 
-        output.DeleteDirectory();
+        (output / project.Name).DeleteDirectory();
       }
     }
   }

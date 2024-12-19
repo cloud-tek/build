@@ -92,7 +92,7 @@ public class EmbeddedResourceExtensionsTests
 
       // Assert
       files.Should().NotBeNullOrEmpty();
-      files.Length.Should().Be(4);
+      files.Length.Should().Be(6);
 
       foreach (var file in files)
       {

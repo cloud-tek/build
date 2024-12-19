@@ -54,18 +54,16 @@ namespace CloudTek.Build
 
     private DotNetTestSettings ConfigureTestSettings(DotNetTestSettings settings, bool isIntegrationTests)
     {
-      return ToolSettingsExtensions.When(
-          settings
-            .SetLoggers($"trx")
-            .SetConfiguration(Configuration)
-            .SetResultsDirectory(Repository.TestResultsDirectory)
-            .SetProcessToolPath(DotNetPath)
-            .SetRuntime(Runtime)
-            .SetNoRestore(SolutionRestored)
-            .SetNoBuild(SolutionBuilt)
-            .Execute(s => s.SetProcessEnvironmentVariables(EnvironmentVariables)),
-          CollectCoverage,
-          s => s.SetDataCollector(
+      return settings
+        .SetLoggers($"trx")
+        .SetConfiguration(Configuration)
+        .SetResultsDirectory(Repository.TestResultsDirectory)
+        .SetProcessToolPath(DotNetPath)
+        .SetNoRestore(SolutionRestored)
+        .SetNoBuild(SolutionBuilt)
+        .Execute(s => s.SetProcessEnvironmentVariables(EnvironmentVariables))
+        .ExecuteWhen(predicate: CollectCoverage, action: s =>
+          s.SetDataCollector(
             "XPlat Code Coverage;Format=Cobertura;IncludeTestAssembly=false;ExcludeAssembliesWithoutSources=MissingAll;ExcludeByFile=**/*.g.cs;Exclude=[*]*Migrations*;"))
         .SetFilter(
           (string.IsNullOrWhiteSpace(TestFilter) ? "" : TestFilter + "&") + (isIntegrationTests

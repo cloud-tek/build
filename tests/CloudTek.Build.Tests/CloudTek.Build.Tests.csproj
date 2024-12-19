@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -31,6 +31,21 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\CloudTek.Build\CloudTek.Build.csproj" />
       <ProjectReference Include="..\..\src\CloudTek.Testing\CloudTek.Testing.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="TestData\Directory.Build01.props.xml" />
+      <Content Include="TestData\Directory.Build01.props.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\Directory.Build02.props.xml" />
+      <Content Include="TestData\Directory.Build02.props.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="TestData\Directory.Build03.props.xml" />
+      <Content Include="TestData\Directory.Build03.props.xml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

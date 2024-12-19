@@ -14,37 +14,11 @@ public static class ToolSettingsExtensions
   /// </summary>
   /// <typeparam name="TSettings">The type of the settings.</typeparam>
   /// <param name="settings"></param>
-  /// <param name="predicate"></param>
-  /// <param name="action"></param>
-  /// <returns>The updated settings.</returns>
-  /// <exception cref="ArgumentNullException">Thrown when the action parameter is null.</exception>
-  public static TSettings When<TSettings>(
-    this TSettings settings,
-    bool predicate,
-    Func<TSettings, TSettings> action)
-    where TSettings : ToolSettings
-  {
-    _ = action ??
-      throw new ArgumentNullException(nameof(action));
-
-    if (predicate)
-    {
-      settings = action(settings);
-    }
-
-    return settings;
-  }
-
-  /// <summary>
-  /// Executes the action when the predicate is true.
-  /// </summary>
-  /// <typeparam name="TSettings">The type of the settings.</typeparam>
-  /// <param name="settings"></param>
   /// <param name="action"></param>
   /// <param name="predicate"></param>
   /// <returns>The updated settings.</returns>
   /// <exception cref="ArgumentNullException">Thrown when the action parameter is null.</exception>
-  public static TSettings ExecuteWhen<TSettings>(this TSettings settings, Func<TSettings, TSettings> action, bool predicate)
+  public static TSettings ExecuteWhen<TSettings>(this TSettings settings, bool predicate, Func<TSettings, TSettings> action)
     where TSettings : ToolSettings
   {
     _ = action ?? throw new ArgumentNullException(nameof(action));

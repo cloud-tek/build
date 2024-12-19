@@ -1,18 +1,16 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 using CloudTek.Build.Extensions;
 using CloudTek.Build.Packaging;
+using CloudTek.Build.Utilities;
 using CloudTek.Build.Versioning;
 using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Serilog;
+using static Nuke.Common.ProjectModel.SolutionModelTasks;
 
 namespace CloudTek.Build
 {
@@ -213,75 +211,21 @@ namespace CloudTek.Build
 
     private static Solution GetSolution()
     {
-      EnsureIsPackableDisabledByDefault();
-
-      var paths = RootDirectory.GlobFiles("*sln");
+      var paths = RootDirectory.GlobFiles("*.sln");
       if (paths.Count == 0)
-        throw new InvalidOperationException("Didn't find any solution file - please, create one :)");
+        throw new InvalidOperationException("No solution file present in the root directory.");
       if (paths.Count > 1)
       {
         throw new InvalidOperationException(
-          "There is more than one solution - please make sure that you run the SmartBuild in a folder with only one solution. Any additional solutions are to be moved to separate folders");
+          "Multiple solution files are present in the root directory.");
       }
 
-      return SolutionModelTasks.ParseSolution(paths.Single());
-    }
+      MsBuildFileHandler.SetIsPackable(
+        path: RootDirectory / "Directory.Build.props",
+        createIfNotExists: true,
+        value: false);
 
-    private static void EnsureIsPackableDisabledByDefault()
-    {
-      var directoryBuildPropsPath = Path.Combine(Directory.GetCurrentDirectory(), "Directory.Build.props");
-
-      if (!File.Exists(directoryBuildPropsPath))
-      {
-        // File does not exist, create it
-        var content = @"<Project>
-                              <PropertyGroup>
-                                <IsPackable>false</IsPackable>
-                              </PropertyGroup>
-                            </Project>";
-
-        File.WriteAllText(directoryBuildPropsPath, content);
-      }
-      else
-      {
-        var doc = XDocument.Load(directoryBuildPropsPath);
-
-        var root = doc.Root;
-        if (root == null)
-        {
-          // File is invalid, recreate it
-          root = new XElement("Project");
-          doc = new XDocument(root);
-        }
-
-        var isPackable = root.Descendants("IsPackable").FirstOrDefault()?.Value;
-        var disablePackableCheck = root.Descendants("DisablePackableCheckInRoot").FirstOrDefault()?.Value;
-
-        if (disablePackableCheck?.ToLowerInvariant() == "true")
-          return;
-
-        if (isPackable == null)
-        {
-          // Add PropertyGroup if needed
-          var propertyGroup = root.Element("PropertyGroup");
-          if (propertyGroup == null)
-          {
-            propertyGroup = new XElement("PropertyGroup");
-            root.Add(propertyGroup);
-          }
-
-          propertyGroup.SetElementValue("IsPackable", "false");
-        }
-
-        var settings = new XmlWriterSettings
-        {
-          OmitXmlDeclaration = true,
-          Indent = true,
-          Encoding = new UTF8Encoding(false)
-        };
-        using var xw = XmlWriter.Create(directoryBuildPropsPath, settings);
-        doc.Save(xw);
-      }
+      return ParseSolution(paths.Single());
     }
   }
 }

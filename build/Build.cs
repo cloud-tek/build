@@ -5,7 +5,7 @@ using Nuke.Common.Tools.GitVersion;
 // ReSharper disable once CheckNamespace
 namespace _build;
 
-public class Build : SmartBuild<VersioningStrategy.GitVersion>
+public class Build : SmartBuild<VersioningStrategy.Default>
 {
   /// <summary>
   /// GitVersion information for SmartBuild

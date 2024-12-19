@@ -1,4 +1,4 @@
-#r "nuget: CloudTek.Git"
+#r "nuget: CloudTek.Git, 1.0.11"
 
 using CloudTek.Git;
 
