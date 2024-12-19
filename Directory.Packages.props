@@ -6,18 +6,18 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.2.0" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.3.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
-    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
-    <PackageVersion Include="Microsoft.CodeCoverage" Version="17.9.0" />
-    <PackageVersion Include="Microsoft.Build" Version="17.10.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-    <PackageVersion Include="Nuke.Build" Version="8.1.0" />
-    <PackageVersion Include="Nuke.Common" Version="8.1.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.8.0" />
-    <PackageVersion Include="SemVer" Version="2.3.0" />
-    <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.5" />
-    <PackageVersion Include="xunit" Version="2.6.6" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.6" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.CodeCoverage" Version="17.12.0" />
+    <PackageVersion Include="Microsoft.Build" Version="17.12.6" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="Nuke.Build" Version="9.0.3" />
+    <PackageVersion Include="Nuke.Common" Version="9.0.3" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
+    <PackageVersion Include="SemVer" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" />
   </ItemGroup>
 </Project>
