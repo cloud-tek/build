@@ -1,64 +1,139 @@
 using Microsoft.Build.Definition;
 using Microsoft.Build.Evaluation;
 using Nuke.Common.IO;
-using Nuke.Common.Utilities;
 
 namespace CloudTek.Build.Primitives;
+
+// TODO: refactor
+
+/// <summary>
+/// Properties of a project
+/// </summary>
+/// <param name="IsPackable"></param>
+/// <param name="PackAsTool"></param>
+/// <param name="IsTestProject"></param>
+/// <param name="OutputType"></param>
+/// <param name="HasCodeCoveragePackage"></param>
+public record ProjectProperties(
+  bool? IsPackable,
+  bool? PackAsTool,
+  bool? IsTestProject,
+  string? OutputType,
+  bool? HasCodeCoveragePackage);
+
+/// <summary>
+/// Project type helper enum
+/// </summary>
+public enum ProjectType
+{
+  /// <summary>
+  /// Project that is going to be emitted as a NuGet package artifact
+  /// </summary>
+  Package = 0,
+
+  /// <summary>
+  /// Project that is going to be emitted as a container image artifact
+  /// </summary>
+  Service,
+
+  /// <summary>
+  /// Project containing tests
+  /// </summary>
+  Test,
+
+  /// <summary>
+  /// Project that does not get emitted in any way
+  /// </summary>
+  Library,
+
+  /// <summary>
+  /// Project that is going to be emitted as a dotnet tool
+  /// </summary>
+  Tool
+}
 
 /// <summary>
 /// A primitive describing a project in the repository
 /// </summary>
 public class Project
 {
-  internal Project(AbsolutePath path, ArtifactType type)
+  internal AbsolutePath Path { get; init; } = default!;
+  internal AbsolutePath WorkDir { get; init; } = default!;
+  internal string Name { get; init; } = default!;
+  internal ProjectProperties ProjectProperties { get; init; }
+
+  internal ProjectType Type
   {
-    var assemblyInfo = GetAssemblyInformation(path);
+    get
+    {
+      if (ProjectProperties.IsTestProject == true)
+      {
+        return ProjectType.Test;
+      }
+
+      if (ProjectProperties.OutputType?.ToLowerInvariant() == "exe" && ProjectProperties.PackAsTool == true &&
+          ProjectProperties.IsPackable == true)
+      {
+        return ProjectType.Package; //dotnet tool
+      }
+
+      if (ProjectProperties.OutputType?.ToLowerInvariant() == "exe")
+      {
+        return ProjectType.Service; //otherwise if it is an exe we treat it as service
+      }
+
+      if (ProjectProperties.IsPackable == true)
+      {
+        return ProjectType.Package; //otherwise if it is packable - pack it
+      }
+
+      return ProjectType.Library; //if not - it is just library
+    }
+  }
+
+  internal Project(AbsolutePath path)
+  {
+    var (assemblyName, projectProperties) = GetAssemblyInformation(path);
 
     Path = path;
     WorkDir = path.Parent!;
-    Type = type;
-    Name = assemblyInfo.AssemblyName;
-    IsPackable = assemblyInfo.IsPackable;
+    ProjectProperties = projectProperties;
+    Name = assemblyName;
   }
 
-  /// <summary>
-  /// The path to the artifact's project file
-  /// </summary>
-  public AbsolutePath Path { get; init; } = default!;
-
-  /// <summary>
-  /// The directory where the project is located
-  /// </summary>
-  public AbsolutePath WorkDir { get; init; } = default!;
-
-  /// <summary>
-  /// Assembly name of the artifact
-  /// </summary>
-  public string Name { get; init; } = default!;
-
-  /// <summary>
-  /// Flag indicating whether the artifact is Packable
-  /// </summary>
-  public bool IsPackable { get; init; }
-
-  /// <summary>
-  /// Type of the artifact
-  /// </summary>
-  public ArtifactType Type { get; init; }
-
-  private static (string AssemblyName, bool IsPackable) GetAssemblyInformation(AbsolutePath path)
+  private static (string assemblyName, ProjectProperties projectProperties) GetAssemblyInformation(AbsolutePath path)
   {
     var msProject = ProjectCollection.GlobalProjectCollection.LoadedProjects.SingleOrDefault(p => p.FullPath == path)
-                    ?? Microsoft.Build.Evaluation.Project.FromFile(path, new ProjectOptions
-                    {
-                      LoadSettings = ProjectLoadSettings.IgnoreMissingImports | ProjectLoadSettings.IgnoreInvalidImports
-                    });
+                    ?? Microsoft.Build.Evaluation.Project.FromFile(
+                      path,
+                      new ProjectOptions()
+                      {
+                        LoadSettings = ProjectLoadSettings.IgnoreMissingImports |
+                                       ProjectLoadSettings.IgnoreInvalidImports
+                      });
     var assemblyNameElement = msProject.GetPropertyValue("AssemblyName");
     var assemblyName = !string.IsNullOrEmpty(assemblyNameElement) ? assemblyNameElement : path.NameWithoutExtension;
 
-    var isPackableValue = msProject.GetPropertyValue("IsPackable");
-    var isPackable = !isPackableValue.IsNullOrEmpty() && bool.Parse(isPackableValue);
+    var isPackable = TryGetBool(msProject.GetPropertyValue("IsPackable"));
+    var outputType = msProject.GetPropertyValue("OutputType");
+    var isTestProject = msProject.Items.Any(
+      p => p.ItemType == "PackageReference" && p.EvaluatedInclude == "Microsoft.NET.Test.Sdk");
+    var hasCodeCoveragePackage =
+      msProject.Items.Any(p => p.ItemType == "PackageReference" && p.EvaluatedInclude == "coverlet.collector");
+    var packAsTool = TryGetBool(msProject.GetPropertyValue("PackAsTool"));
+    var projectProperties = new ProjectProperties(
+      isPackable,
+      packAsTool,
+      isTestProject,
+      outputType,
+      hasCodeCoveragePackage);
 
-    return (assemblyName, isPackable);
+    return (assemblyName, projectProperties);
+  }
+
+  private static bool? TryGetBool(string value)
+  {
+    bool? parsed = bool.TryParse(value, out var p) ? p : null;
+    return parsed;
   }
 }

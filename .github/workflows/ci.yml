@@ -18,6 +18,8 @@ on:
     - "tests/**"
     - "GitVersion.yml"
     - "global.json"
+    - "*.props"
+    - "*.targets"
   push:
     branches:
     - feature/*
@@ -44,8 +46,8 @@ jobs:
     name: build
     with:
       Directory: ${{ github.workspace }}
-      NetCoreVersion: 8.0.404
-      GitVersion:   true
+      NetCoreVersion: 9.0.100
+      GitVersion:   false
       Compile:      true
       UnitTests:    true
       Push:         true

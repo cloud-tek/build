@@ -87,21 +87,27 @@ public static class CommitMessageAnalyzer
 
   private static int HandleResult(CommitMessageAnalysisResult result)
   {
-    switch (result)
+    try
     {
-      case CommitMessageAnalysisResult.Ok:
-        return 0;
-      case CommitMessageAnalysisResult.Invalid:
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("The git log contains at least one invalid commit message");
-        Console.WriteLine("All commits should follow the conventional commits convention");
-        Console.WriteLine("Example: 'feat(scope): subject' or 'feat: subject'");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
-        Console.ResetColor();
-        return 1;
-      default:
-        throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
+      Console.ForegroundColor = ConsoleColor.Gray;
+      switch (result)
+      {
+        case CommitMessageAnalysisResult.Ok:
+          Console.WriteLine("Commit message validated");
+          return 0;
+        case CommitMessageAnalysisResult.Invalid:
+          Console.WriteLine("The git log contains at least one invalid commit message");
+          Console.WriteLine("All commits should follow the conventional commits convention");
+          Console.WriteLine("Example: 'feat(scope): subject' or 'feat: subject'");
+          Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
+          return 1;
+        default:
+          throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
+      }
+    }
+    finally
+    {
+      Console.ResetColor();
     }
   }
 

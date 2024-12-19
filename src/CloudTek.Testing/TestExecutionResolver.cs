@@ -5,7 +5,7 @@ namespace CloudTek.Testing;
 
 internal static class TestExecutionResolver
 {
-  internal static IDictionary<Execute, string> SkipReasonForExecute = new Dictionary<Execute, string>()
+  internal static IDictionary<Execute, string> SkipReasonForExecute = new Dictionary<Execute, string>
   {
     { Execute.InGithubActions, "Test to be executed only in Github Actions." },
     { Execute.InAzureDevOps, "Test to be executed only in Azure DevOps." },
@@ -13,31 +13,20 @@ internal static class TestExecutionResolver
     { Execute.InDebug, "Test to be executed only in DEBUG configuration." }
   };
 
-  internal static IDictionary<On, string> SkipReasonForOn = new Dictionary<On, string>()
+  internal static IDictionary<On, string> SkipReasonForOn = new Dictionary<On, string>
   {
     { On.Windows, "Test to be executed on Windows." },
     { On.Linux, "Test to be executed on Linux." },
-    { On.MacOS, "Test to be executed on MacOS." },
+    { On.MacOS, "Test to be executed on MacOS." }
   };
 
-  private static readonly string[] RequiredGitHubActionsEnvVariables = new[]
-  {
-    "GITHUB_ACTIONS"
-  };
+  private static readonly string[] RequiredGitHubActionsEnvVariables = new[] { "GITHUB_ACTIONS" };
 
-  private static readonly string[] RequiredAzureDevOpsEnvVariables = new[]
-  {
-    "AGENT_ID",
-    "BUILD_BUILDID"
-  };
+  private static readonly string[] RequiredAzureDevOpsEnvVariables = new[] { "AGENT_ID", "BUILD_BUILDID" };
+
   public static string? Resolve(Execute execute, On on, IEnumerable<string>? environment = null)
   {
-    var errors = new[]
-    {
-      Resolve(execute),
-      Resolve(on),
-      environment != null ? Resolve(environment) : null
-    };
+    var errors = new[] { Resolve(execute), Resolve(on), environment != null ? Resolve(environment) : null };
 
     var count = errors.Count(e => e != null);
 
@@ -45,19 +34,21 @@ internal static class TestExecutionResolver
     {
       var result = new StringBuilder();
 
-      errors.Where(e => e != null).ForEach(e =>
-      {
-        result.Append(e);
-
-        if (e != errors.Last(e => e != null))
+      errors.Where(e => e != null).ForEach(
+        e =>
         {
-          result.Append(" & ");
-        }
-      });
+          result.Append(e);
+
+          if (e != errors.Last(e => e != null))
+          {
+            result.Append(" & ");
+          }
+        });
 
       return result.ToString();
     }
-    else if (count == 1)
+
+    if (count == 1)
     {
       return errors.Single(e => e != null);
     }
@@ -69,16 +60,24 @@ internal static class TestExecutionResolver
   {
     if ((Execute.InGithubActions & execute) != 0)
     {
-      var err = ValidateEnvVariablesExists(RequiredGitHubActionsEnvVariables, () => SkipReasonForExecute[Execute.InGithubActions]);
+      var err = ValidateEnvVariablesExists(
+        RequiredGitHubActionsEnvVariables,
+        () => SkipReasonForExecute[Execute.InGithubActions]);
       if (err != null)
+      {
         return err;
+      }
     }
 
     if ((Execute.InAzureDevOps & execute) != 0)
     {
-      var err = ValidateEnvVariablesExists(RequiredAzureDevOpsEnvVariables, () => SkipReasonForExecute[Execute.InAzureDevOps]);
+      var err = ValidateEnvVariablesExists(
+        RequiredAzureDevOpsEnvVariables,
+        () => SkipReasonForExecute[Execute.InAzureDevOps]);
       if (err != null)
+      {
         return err;
+      }
     }
 
     if ((Execute.InContainer & execute) != 0)
@@ -89,7 +88,9 @@ internal static class TestExecutionResolver
         () => SkipReasonForExecute[Execute.InContainer]);
 
       if (err != null)
+      {
         return err;
+      }
     }
 
     if ((Execute.InDebug & execute) != 0)
