@@ -18,6 +18,8 @@ on:
     - "tests/**"
     - "GitVersion.yml"
     - "global.json"
+    - "*.props"
+    - "*.targets"
   push:
     branches:
     - feature/*
