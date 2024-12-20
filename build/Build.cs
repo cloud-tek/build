@@ -7,12 +7,13 @@ namespace _build;
 
 public class Build : SmartBuild<VersioningStrategy.Default>
 {
-  /// <summary>
-  /// GitVersion information for SmartBuild
-  /// </summary>
-  [GitVersion(Framework = "net8.0", NoFetch = true)]
-  // ReSharper disable once UnusedAutoPropertyAccessor.Global
-  public GitVersion GitVersion { get; set; } = default!;
+  // todo: restore once versioniong is fixed
+  // /// <summary>
+  // /// GitVersion information for SmartBuild (disabled)
+  // /// </summary>
+  // [GitVersion(Framework = "net8.0", NoFetch = true)]
+  // // ReSharper disable once UnusedAutoPropertyAccessor.Global
+  // public GitVersion GitVersion { get; set; } = default!;
 
   public override string PackagesFilter { get; init; } = "Nuke";
 
