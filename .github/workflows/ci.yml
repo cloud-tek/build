@@ -12,7 +12,7 @@ on:
     branches:
     - main
     paths:
-    - ".config/**"
+    - ".config/*.json"
     - ".github/workflows/**"
     - "build/**"
     - "src/**"
