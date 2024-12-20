@@ -42,7 +42,7 @@ namespace CloudTek.Build
         {
           var path = RootDirectory / ".husky";
 
-          if (!path.Exists())
+          if (!path.DirectoryExists())
           {
             await Assembly.GetExecutingAssembly().CopyResources(path, ".templates..husky");
 
