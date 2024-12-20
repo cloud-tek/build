@@ -199,7 +199,7 @@ namespace CloudTek.Build
       ReportDuration(
         "Total",
         Repository.Name,
-        IsSuccessful,
+        IsSucceeding,
         _stopwatches["Total"].ElapsedMilliseconds);
 
       LoggerFactory?.Dispose();

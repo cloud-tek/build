@@ -19,7 +19,7 @@ public static class ToolSettingsExtensions
   /// <returns>The updated settings.</returns>
   /// <exception cref="ArgumentNullException">Thrown when the action parameter is null.</exception>
   public static TSettings ExecuteWhen<TSettings>(this TSettings settings, bool predicate, Func<TSettings, TSettings> action)
-    where TSettings : ToolSettings
+    where TSettings : ToolOptions
   {
     _ = action ?? throw new ArgumentNullException(nameof(action));
 
@@ -42,7 +42,7 @@ public static class ToolSettingsExtensions
   public static TSettings Execute<TSettings>(
     this TSettings settings,
     Func<TSettings, TSettings> action)
-    where TSettings : ToolSettings
+    where TSettings : ToolOptions
   {
     _ = action ??
         throw new ArgumentNullException(nameof(action));
@@ -62,7 +62,7 @@ public static class ToolSettingsExtensions
   public static TSettings SetProcessEnvironmentVariables<TSettings>(
     this TSettings settings,
     IReadOnlyDictionary<string, string?> variables)
-    where TSettings : ToolSettings
+    where TSettings : ToolOptions
   {
     var integrationTestsEnvDetected = false;
     const string integrationTestsEnv = "IntegrationTests";

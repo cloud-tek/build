@@ -27,7 +27,7 @@ namespace CloudTek.Build
         {
           DotNetToolInstall(
             c => c.SetPackageName("dotnet-outdated-tool")
-              .SetProcessArgumentConfigurator(p => p.Add("--create-manifest-if-needed")));
+              .SetProcessAdditionalArguments("--create-manifest-if-needed"));
           DotNetToolRestore();
         });
 #pragma warning restore CA1822
@@ -49,7 +49,7 @@ namespace CloudTek.Build
             DotNetToolInstall(
               c =>
                 c.SetPackageName("husky")
-                  .SetProcessArgumentConfigurator(p => p.Add("--create-manifest-if-needed")));
+                  .SetProcessAdditionalArguments("--create-manifest-if-needed"));
 
             DotNetToolRestore();
             DotNet("husky install", RootDirectory);

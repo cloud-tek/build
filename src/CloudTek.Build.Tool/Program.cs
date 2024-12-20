@@ -12,9 +12,8 @@ public class Tool : SmartBuild<VersioningStrategy.Default>
   /// <summary>
   /// Tool entrypoint
   /// </summary>
-  /// <param name="args"></param>
   /// <returns></returns>
-  public static async Task<int> Main(string[] args)
+  public static async Task<int> Main()
   {
     await EnsureNukeFolderExists()
       .ConfigureAwait(false);
@@ -24,10 +23,9 @@ public class Tool : SmartBuild<VersioningStrategy.Default>
       var rc = await RunDotnetProcess($"build {project}")
         .ConfigureAwait(false);
 
-      if (rc != 0)
-        return rc;
-
-      return await RunDotnetProcess($"run --project {project}")
+      return rc != 0
+        ? rc
+        : await RunDotnetProcess($"run --project {project}")
         .ConfigureAwait(false);
     }
 

@@ -20,9 +20,9 @@ internal static class TestExecutionResolver
     { On.MacOS, "Test to be executed on MacOS." }
   };
 
-  private static readonly string[] RequiredGitHubActionsEnvVariables = new[] { "GITHUB_ACTIONS" };
+  private static readonly string[] RequiredGitHubActionsEnvVariables = ["GITHUB_ACTIONS"];
 
-  private static readonly string[] RequiredAzureDevOpsEnvVariables = new[] { "AGENT_ID", "BUILD_BUILDID" };
+  private static readonly string[] RequiredAzureDevOpsEnvVariables = ["AGENT_ID", "BUILD_BUILDID"];
 
   public static string? Resolve(Execute execute, On on, IEnumerable<string>? environment = null)
   {
@@ -48,12 +48,7 @@ internal static class TestExecutionResolver
       return result.ToString();
     }
 
-    if (count == 1)
-    {
-      return errors.Single(e => e != null);
-    }
-
-    return null;
+    return count == 1 ? errors.Single(e => e != null) : null;
   }
 
   internal static string? Resolve(Execute execute)
@@ -106,22 +101,11 @@ internal static class TestExecutionResolver
 
   internal static string? Resolve(On on)
   {
-    if ((On.Windows & on) == On.Windows && !OperatingSystem.IsWindows())
-    {
-      return SkipReasonForOn[On.Windows];
-    }
-
-    if ((On.Linux & on) == On.Linux && !OperatingSystem.IsLinux())
-    {
-      return SkipReasonForOn[On.Linux];
-    }
-
-    if ((On.MacOS & on) == On.MacOS && !OperatingSystem.IsMacOS())
-    {
-      return SkipReasonForOn[On.MacOS];
-    }
-
-    return null;
+    return (On.Windows & on) == On.Windows && !OperatingSystem.IsWindows()
+      ? SkipReasonForOn[On.Windows]
+      : (On.Linux & on) == On.Linux && !OperatingSystem.IsLinux()
+      ? SkipReasonForOn[On.Linux]
+      : (On.MacOS & on) == On.MacOS && !OperatingSystem.IsMacOS() ? SkipReasonForOn[On.MacOS] : null;
   }
 
   internal static string? Resolve(IEnumerable<string> environment)
@@ -146,12 +130,9 @@ internal static class TestExecutionResolver
   private static string? ValidateEnvVariableValue(string name, string value, Func<string> errorSelector)
   {
     var val = Environment.GetEnvironmentVariable(name);
-    if (string.IsNullOrEmpty(val) || val.Equals(value, StringComparison.OrdinalIgnoreCase))
-    {
-      return SkipReasonForExecute[Execute.InContainer];
-    }
-
-    return null;
+    return string.IsNullOrEmpty(val) || val.Equals(value, StringComparison.OrdinalIgnoreCase)
+      ? errorSelector()
+      : null;
   }
 
   private static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)

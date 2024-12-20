@@ -9,7 +9,7 @@ namespace CloudTek.Git;
 /// </summary>
 public static class CommitMessageAnalyzer
 {
-  private static readonly string[] ExceptionMessages = new[] { "merge", "created branch", "apply suggestions" };
+  private static readonly string[] ExceptionMessages = ["merge", "created branch", "apply suggestions"];
 
   /// <summary>
   /// Analyzes last commit message based on the provided filename
@@ -66,14 +66,19 @@ public static class CommitMessageAnalyzer
         result = Analyze(e.Data);
 
         if (result == CommitMessageAnalysisResult.Invalid)
+        {
           sb.AppendLine(e.Data);
+        }
       }
     };
 
     proc.ErrorDataReceived += (sender, e) =>
     {
       if (string.IsNullOrWhiteSpace(e.Data))
+      {
         return;
+      }
+
       sb.AppendLine(e.Data);
     };
 
@@ -102,7 +107,7 @@ public static class CommitMessageAnalyzer
           Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
           return 1;
         default:
-          throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
+          throw new InvalidOperationException($"Unhandled result type: {result}");
       }
     }
     finally

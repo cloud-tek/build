@@ -40,8 +40,8 @@ public static class TestPortProvider
         GetPorts(
           () => properties.GetActiveTcpConnections().Select(x => x.LocalEndPoint),
           startingPort));
-      portArray.AddRange(GetPorts(() => properties.GetActiveTcpListeners(), startingPort));
-      portArray.AddRange(GetPorts(() => properties.GetActiveUdpListeners(), startingPort));
+      portArray.AddRange(GetPorts(properties.GetActiveTcpListeners, startingPort));
+      portArray.AddRange(GetPorts(properties.GetActiveUdpListeners, startingPort));
     }
     else if (!OperatingSystem.IsWindows())
     {
@@ -57,7 +57,7 @@ public static class TestPortProvider
             .Select(x => x.LocalEndPoint),
           startingPort,
           true));
-      portArray.AddRange(GetPorts(() => properties.GetActiveUdpListeners(), startingPort, true));
+      portArray.AddRange(GetPorts(properties.GetActiveUdpListeners, startingPort, true));
     }
 
     portArray = portArray.Distinct().ToList();
