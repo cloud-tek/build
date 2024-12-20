@@ -1,12 +1,14 @@
+using Xunit;
+
 namespace CloudTek.Testing;
 
 /// <summary>
-/// SmartTheory attribute used to mark a test as a smart XUnit theory
+///   SmartTheory attribute used to mark a test as a smart XUnit theory
 /// </summary>
-public sealed class SmartTheoryAttribute : Xunit.TheoryAttribute
+public sealed class SmartTheoryAttribute : TheoryAttribute
 {
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartTheoryAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartTheoryAttribute" /> class.
   /// </summary>
   /// <param name="on"></param>
   public SmartTheoryAttribute(On on)
@@ -15,7 +17,7 @@ public sealed class SmartTheoryAttribute : Xunit.TheoryAttribute
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartTheoryAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartTheoryAttribute" /> class.
   /// </summary>
   /// <param name="execute"></param>
   public SmartTheoryAttribute(Execute execute)
@@ -24,7 +26,7 @@ public sealed class SmartTheoryAttribute : Xunit.TheoryAttribute
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartTheoryAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartTheoryAttribute" /> class.
   /// </summary>
   /// <param name="execute"></param>
   /// <param name="on"></param>

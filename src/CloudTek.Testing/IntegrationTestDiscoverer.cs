@@ -4,7 +4,7 @@ using Xunit.Sdk;
 namespace CloudTek.Testing;
 
 /// <summary>
-/// Discoverer for the <see cref="IntegrationTestAttribute"/>
+///   Discoverer for the <see cref="IntegrationTestAttribute" />
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
 public class IntegrationTestDiscoverer : ITraitDiscoverer
@@ -15,7 +15,7 @@ public class IntegrationTestDiscoverer : ITraitDiscoverer
   public const string TypeName = AssemblyInfo.Name + "." + nameof(IntegrationTestDiscoverer);
 
   /// <summary>
-  /// Gets the trait values from the <paramref name="traitAttribute"/>
+  ///   Gets the trait values from the <paramref name="traitAttribute" />
   /// </summary>
   /// <param name="traitAttribute"></param>
   /// <returns>Traits of the target attribute</returns>

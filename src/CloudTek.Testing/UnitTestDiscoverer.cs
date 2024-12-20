@@ -4,18 +4,18 @@ using Xunit.Sdk;
 namespace CloudTek.Testing;
 
 /// <summary>
-/// Discoverer for the <see cref="UnitTestAttribute"/>
+///   Discoverer for the <see cref="UnitTestAttribute" />
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
 public class UnitTestDiscoverer : ITraitDiscoverer
 {
   /// <summary>
-  /// The fully qualified type name of this discoverer
+  ///   The fully qualified type name of this discoverer
   /// </summary>
   public const string TypeName = AssemblyInfo.Name + "." + nameof(UnitTestDiscoverer);
 
   /// <summary>
-  /// Gets the trait values from the <paramref name="traitAttribute"/>
+  ///   Gets the trait values from the <paramref name="traitAttribute" />
   /// </summary>
   /// <param name="traitAttribute"></param>
   /// <returns>Traits of the target attribute</returns>

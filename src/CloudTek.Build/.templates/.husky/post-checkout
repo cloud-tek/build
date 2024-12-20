@@ -1,0 +1,64 @@
+#!/bin/sh
+
+if [ -d "$(dirname "$0")/_" ]; then
+. "$(dirname "$0")/_/husky.sh"
+else
+  exit 0
+fi
+
+## husky task runner examples -------------------
+## Note : for local installation use 'dotnet' prefix. e.g. 'dotnet husky'
+
+## run all tasks
+#husky run
+
+### run all tasks with group: 'group-name'
+#husky run --group group-name
+
+## run task with name: 'task-name'
+#husky run --name task-name
+
+## pass hook arguments to task
+#husky run --args "$1" "$2"
+
+## or put your custom commands -------------------
+#echo 'Husky.Net is awesome!'
+
+#!/bin/bash
+# Based on a hook from gist.github.com
+# Source: https://gist.github.com/zgohr/4557894
+#
+# Creates a commit and displays a custom message when a new branch is checked out for the first time.
+# A commit is made in order to help determine if a new branch has been created.
+#
+# Requirements:
+#   * Bash
+#
+# To enable this hook, rename this file to "post-checkout".
+
+from_hash=$1
+to_hash=$2
+checkout_type=$3
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+from_branch_name=$(git name-rev --name-only $from_hash)
+
+light_red='\033[1;31m'
+no_color='\033[0m'
+
+if [ $checkout_type -ne 1 ]
+then
+    exit 0 ; # Not a branch checkout
+fi
+
+if [ $from_hash != $to_hash ]
+then
+    exit 0 ; # Not checking out a new branch
+fi
+
+if [ $branch_name == $from_branch_name ]
+then
+    exit 0 ; # Not checking out a new branch
+fi
+
+# Create a commit and display a message
+git commit --allow-empty -m "Created branch $branch_name" --no-verify

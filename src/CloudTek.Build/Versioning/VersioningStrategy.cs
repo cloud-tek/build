@@ -1,19 +1,14 @@
-using CloudTek.Build.Primitives;
 using Nuke.Common.Tools.DotNet;
 
-namespace CloudTek.Build.Versioning;
-
-public abstract partial class VersioningStrategy
+namespace CloudTek.Build.Versioning
 {
-  internal abstract Func<DotNetPublishSettings, SmartBuild, Project, DotNetPublishSettings> SetDotNetPublishVersion
+  /// <summary>
+  /// An abstract class used to feed dotnet pack with version information for packages
+  /// </summary>
+  public abstract partial class VersioningStrategy
   {
-    get;
-  }
+    internal abstract Func<DotNetPackSettings, SmartBuild, DotNetPackSettings> SetDotNetPackVersion { get; }
 
-  internal abstract Func<DotNetPackSettings, SmartBuild, Project, DotNetPackSettings> SetDotNetPackVersion { get; }
-
-  internal abstract Func<DotNetNuGetPushSettings, SmartBuild, Project, DotNetNuGetPushSettings> SetDotNetNuPkgPath
-  {
-    get;
+    internal abstract Func<DotNetPublishSettings, SmartBuild, DotNetPublishSettings> SetDotNetPublishVersion { get; }
   }
 }
