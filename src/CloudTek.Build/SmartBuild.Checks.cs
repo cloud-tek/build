@@ -1,6 +1,7 @@
 using System.IO;
 using CloudTek.Build.Packaging;
 using Nuke.Common;
+using Nuke.Common.IO;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -34,10 +35,10 @@ namespace CloudTek.Build
       .Executes(
         () =>
         {
-          var huskyDir = $"{Solution.Directory}/.husky";
-          Assert.True(Directory.Exists(huskyDir), message: ".husky/ does not exist");
+          var dir = Solution.Directory / ".husky";
+          Assert.True(dir.DirectoryExists(), message: ".husky/ does not exist");
 
-          DotNet(string.Join(' ', DefaultHuskyArgs), Solution.Directory);
+          DotNet(string.Join(' ', DefaultHuskyArgs), Repository.RootDirectory);
         });
 
     /// <summary>
