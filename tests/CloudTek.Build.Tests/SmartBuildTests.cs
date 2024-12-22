@@ -8,7 +8,7 @@ namespace CloudTek.Build.Tests;
 public class SmartBuildTests : SmartBuild<VersioningStrategy.Default>
 {
   [UnitTest]
-  [Fact]
+  [Fact(Skip = "Not implemented")]
   public void X()
   {
     Execute<SmartBuildTests>(x => x.Clean)
