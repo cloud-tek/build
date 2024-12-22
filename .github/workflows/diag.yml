@@ -19,6 +19,9 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
         echo "$GITHUB_CONTEXT"
+    - name: Check git path
+      run: |
+        echo "Git path: $(which git)"
 
   gitversion-diagnostics:
     name: gitversion-diagnostics

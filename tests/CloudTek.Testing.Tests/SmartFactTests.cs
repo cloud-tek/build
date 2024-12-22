@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using FluentAssertions;
 
-namespace CloudTek.Testing;
+namespace CloudTek.Testing.Tests;
 
 public class SmartFactTests
 {

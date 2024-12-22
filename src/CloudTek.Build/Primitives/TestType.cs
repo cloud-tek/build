@@ -1,5 +1,3 @@
-using Nuke.Common.IO;
-
 namespace CloudTek.Build.Primitives;
 
 /// <summary>
@@ -26,15 +24,4 @@ public enum TestType
   /// EndToEndTests (acceptance tests against a system)
   /// </summary>
   E2ETests
-}
-
-/// <summary>
-/// Represents a test project
-/// </summary>
-public sealed class Test
-{
-  /// <summary>
-  /// Project path
-  /// </summary>
-  public AbsolutePath Project { get; set; } = default!;
 }

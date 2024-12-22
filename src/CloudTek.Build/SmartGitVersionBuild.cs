@@ -1,27 +1,17 @@
-using CloudTek.Build.Packaging;
 using CloudTek.Build.Versioning;
 using Nuke.Common.Tools.GitVersion;
 
-namespace CloudTek.Build;
-
-/// <summary>
-/// Abstract SmartBuild supporting GitVersion
-/// </summary>
-/// <typeparam name="TPackageManager">Type of package manager</typeparam>
-public abstract class SmartGitVersionBuild<TPackageManager> : SmartBuild<TPackageManager, VersioningStrategy.GitVersion>
-  where TPackageManager : PackageManager, new()
+namespace CloudTek.Build
 {
   /// <summary>
-  /// Contructor for SmartGitVersionBuild
+  /// A SmartBuild using GitVersion for versioning
   /// </summary>
-  /// <param name="repository"></param>
-  protected SmartGitVersionBuild(Repository repository) : base(repository)
+  public abstract class SmartGitVersionBuild : SmartBuild<VersioningStrategy.GitVersion>
   {
+    /// <summary>
+    /// GitVersion information for the SmartBuild
+    /// </summary>
+    [GitVersion(Framework = "net5.0", NoFetch = true)]
+    public GitVersion GitVersion { get; set; } = default!;
   }
-
-  /// <summary>
-  /// GitVersion information for SmartBuild
-  /// </summary>
-  [GitVersion(Framework = "net5.0", NoFetch = true)]
-  public GitVersion GitVersion { get; set; } = default!;
 }

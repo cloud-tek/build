@@ -1,22 +1,49 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+   <TargetFramework>net9.0</TargetFramework>
     <RepositoryUrl>https://github.com/cloud-tek/build</RepositoryUrl>
     <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>true</IsPackable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
 
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <PropertyGroup>
+    <!--Use after azure artifacts supports snupkg-->
+    <!--
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    -->
+    <!--Workaround for lack of snupkg support-->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="7.0.6"/>
-    <PackageReference Include="SemVer" Version="2.3.0"/>
+    <InternalsVisibleTo Include="CloudTek.Build.Tests" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
+    <PackageReference Include="Nuke.Common" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="SemVer" />
+    <PackageReference Include="Microsoft.Build" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".template\**" />
+    <None Include="build/**" Pack="true" PackagePath="build/" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".templates\.husky\commit-msg" />
+    <EmbeddedResource Include=".templates\.husky\post-checkout" />
+    <EmbeddedResource Include=".templates\.husky\task-runner.json" />
+    <EmbeddedResource Include=".templates\.husky\_\husky.sh" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include=".templates\.husky\csx\commit-lint-ci.csx" />
+    <EmbeddedResource Include=".templates\.husky\csx\commit-lint.csx" />
+  </ItemGroup>
+  <Import Project="..\Version.targets" />
 </Project>
