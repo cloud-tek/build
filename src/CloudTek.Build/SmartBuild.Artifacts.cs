@@ -8,6 +8,7 @@ using Nuke.Common.IO;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities;
+using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 namespace CloudTek.Build
@@ -45,6 +46,7 @@ namespace CloudTek.Build
       .Description("Publish test artifacts to respective /artifacts/tests subdirectory")
       .After(Test)
       .DependsOn(Compile)
+      .Before(Publish)
       .Executes(
         () =>
         {
@@ -61,13 +63,15 @@ namespace CloudTek.Build
             }
           }
         });
+
     /// <summary>
     /// dotnet nuke --target Publish
     /// </summary>
-    protected virtual Target Publish => _ => _
+    protected virtual Target PublishArtifacts => _ => _
       .Description("Publish artifacts to respective /artifacts/* subdirectories")
       .After(Test)
       .DependsOn(Compile)
+      .Before(Publish)
       .Executes(
         () =>
         {
@@ -84,6 +88,12 @@ namespace CloudTek.Build
             }
           }
         });
+
+    protected virtual Target Publish => _ => _
+      .Executes(() =>
+      {
+        Log.Information($"All artifacts published...");
+      });
 
     private void PublishInternal(Project project)
     {
