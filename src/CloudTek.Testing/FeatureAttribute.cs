@@ -7,7 +7,7 @@ namespace CloudTek.Testing;
 public class FeatureAttribute(string id) : Attribute
 {
   /// <summary>
-  /// Feature's identitifier in the respective requirements management system
+  /// Feature's identifier in the respective requirements management system
   /// </summary>
   public string Id { get; init; } = id;
 }
