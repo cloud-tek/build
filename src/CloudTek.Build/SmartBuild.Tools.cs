@@ -42,23 +42,28 @@ namespace CloudTek.Build
         {
           var path = RootDirectory / ".husky";
 
-          if (!path.DirectoryExists())
+          try
           {
-            await Assembly.GetExecutingAssembly().CopyResources(path, ".templates..husky");
+            if (!path.DirectoryExists())
+            {
+              await Assembly.GetExecutingAssembly().CopyResources(path, ".templates..husky");
 
-            DotNetToolInstall(
-              c =>
-                c.SetPackageName("husky")
-                  .SetProcessAdditionalArguments("--create-manifest-if-needed"));
+              DotNetToolInstall(
+                c =>
+                  c.SetPackageName("husky")
+                    .SetProcessAdditionalArguments("--create-manifest-if-needed"));
 
+              Log.Information("husky installed");
+            }
+            else
+            {
+              Log.Information("husky already installed");
+            }
+          }
+          finally
+          {
             DotNetToolRestore();
             DotNet("husky install", RootDirectory);
-
-            Log.Information("husky installed");
-          }
-          else
-          {
-            Log.Information("husky already installed");
           }
         });
   }
