@@ -38,7 +38,7 @@ namespace CloudTek.Build
       .Executes(
         () =>
         {
-          DotNetTest(s => ConfigureTestSettings(s, false));
+          DotNetTest(s => ConfigureTestSettings(s, TestType.UnitTests));
         });
 
     /// <summary>
@@ -49,10 +49,10 @@ namespace CloudTek.Build
       .Executes(
         () =>
         {
-          DotNetTest(s => ConfigureTestSettings(s, true));
+          DotNetTest(s => ConfigureTestSettings(s, TestType.IntegrationTests));
         });
 
-    private DotNetTestSettings ConfigureTestSettings(DotNetTestSettings settings, bool isIntegrationTests)
+    private DotNetTestSettings ConfigureTestSettings(DotNetTestSettings settings, TestType type)
     {
       return settings
         .SetLoggers($"trx")
@@ -65,10 +65,8 @@ namespace CloudTek.Build
         .ExecuteWhen(predicate: CollectCoverage, action: s =>
           s.SetDataCollector(
             "XPlat Code Coverage;Format=Cobertura;IncludeTestAssembly=false;ExcludeAssembliesWithoutSources=MissingAll;ExcludeByFile=**/*.g.cs;Exclude=[*]*Migrations*;"))
-        .SetFilter(
-          (string.IsNullOrWhiteSpace(TestFilter) ? "" : TestFilter + "&") + (isIntegrationTests
-            ? "FullyQualifiedName~Integration"
-            : "FullyQualifiedName!~Integration"));
+        .SetFilter(TestFilter)
+        .SetFilter($"Category={type}");
     }
 
     private void InitializeCoverletCollector()
