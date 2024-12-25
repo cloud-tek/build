@@ -1,6 +1,5 @@
 using CloudTek.Build;
 using CloudTek.Build.Versioning;
-using Nuke.Common.Tools.GitVersion;
 
 // ReSharper disable once CheckNamespace
 namespace _build;

@@ -183,7 +183,7 @@ namespace CloudTek.Build
     private void SkipTargetsFromEnvVariable()
     {
       var nukeSkip = EnvironmentInfo.Variables.GetValueOrDefault("NUKE_SKIP");
-      var targetsToSkip = nukeSkip?.Split("+") ?? [];
+      var targetsToSkip = nukeSkip?.Split(";") ?? [];
       foreach (var target in ExecutionPlan.Where(p => targetsToSkip.Contains(p.Name)).ToList())
       {
         target.StaticConditions.Add(

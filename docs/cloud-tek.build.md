@@ -17,11 +17,10 @@ The `CloudTek.Build` package is meant to be a reusable build system for a variet
 
 ### Skipping targets through environment variables
 
-Targets can be skipped using `NUKE_SKIP_<target-name>`
+Targets can be skipped using `NUKE_SKIP` environment variable. SmartBuild expects the value to contain a list of skipped targets (case-sensitive), separated by a `;`.
 
 ```bash
-export NUKE_SKIP_PACKAGESOUTDATEDCHECK=true
-export NUKE_SKIP_PACKAGESBETACHECK=true
+export NUKE_SKIP="BetaCheck;OutdatedCheck"
 ```
 and then run `nuke --target RunChecks`
 
@@ -48,95 +47,16 @@ NUKE's `ParameterService`'s env var binding logic can be found [here](https://gi
 
 ```csharp
 /// <summary>
-/// dotnet nuke --target Restore --skip-format-check
+/// dotnet nuke --target Restore --myparameter
 /// </summary>
-[Parameter] public bool SkipFormatCheck { get; set; } = false;
+[Parameter] public bool MyParameter { get; set; } = false;
 ```
 
-The above parameter will accept `NUKE_SKIPFORMATCHECK` and `SKIPFORMATCHECK` (case insensitive) env vars as value sources. Only one may be used as described above.
+The above parameter will accept `NUKE_MYPARAMETER` and `MYPARAMETER` (case insensitive) env vars as value sources. Only one may be used as described above.
 
 ## Supported file-system scenarios
 
-### default
-
-By default, `CloudTek.Build` assumes the following directory structure:
-
-```
-├─ build
-├─ src
-│   └── <Projects>
-└─ test
-    └── <TestProjects>
-```
-
-```csharp
-using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
-using CloudTek.Build.Versioning;
-
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
-{
-    public static int Main () => Execute<Build>(x => x.Compile);
-
-    public Build() : base(Repository)
-    { }
-
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new Dictionary<string, ArtifactType>()
-        {
-            { "My.Project",                 ArtifactType.Service },
-            { "My.Project.Client",          ArtifactType.Package },
-        }
-        .Select(x => new Artifact()
-        {
-            Type = x.Value,
-            Path = RootDirectory / "src" / x.Key / "*.csproj"
-        })
-        .ToArray();
-    };
-}
-```
-
-### multi-module
-
-`CloudTek.Build` supports any directory structure for sources:
-
-```
-├─ build
-├─ module1
-│   └── <Projects>
-└─ module2
-    └── <Projects>
-```
-
-```csharp
-using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
-using CloudTek.Build.Versioning;
-
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
-{
-    public static int Main () => Execute<Build>(x => x.Compile);
-
-    public Build() : base(Repository)
-    { }
-
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new[]
-        {
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module1" / "My.Module1.Project1" / "*.csproj" },
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module1" / "My.Module1.Project2" / "*.csproj" },
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module1" / "My.Module1.Project3" / "*.csproj" },
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module2" / "My.Module2.Project1" / "*.csproj" },
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module2" / "My.Module2.Project2" / "*.csproj" },
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "module2" / "My.Module2.Project3" / "*.csproj" }
-        }
-    }
-```
+The SmartBuild is file-system structure agnostic. The `.sln` file is the source of truth regarding the solution, and only the projects listed in the solution will be processed by the SmartBuild.
 
 ## Usage
 
@@ -144,28 +64,24 @@ Create a NUKE build in your project. Add `CloudTek.Build` package.
 
 Define a `SmartBuild` in one of the following ways:
 
-### SmartBuild with a default versioning strategy
+### Local SmartBuild with a default versioning strategy
 
 ```csharp
 using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
 using CloudTek.Build.Versioning;
 
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
+// ReSharper disable once CheckNamespace
+namespace _build;
+
+public class Build : SmartBuild<VersioningStrategy.Default>
 {
-    public static int Main () => Execute<Build>(x => x.Compile);
+  /// <summary>
+  /// The packages filter used in BetaCheck and OutdatedCheck, which can be overriden here.
+  /// </summary>
+  public override string PackagesFilter { get; init; } = "Nuke";
 
-    public Build() : base(Repository)
-    { }
-
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new []
-        {
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "src" / "My.Project" / "*.csproj" }
-        }
-    };
+  // The default build target can be overriden here
+  public static int Main() => Execute<Build>(x => x.Compile);
 }
 ```
 
@@ -177,72 +93,36 @@ public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default
 
 ```bash
 dotnet tool restore
-dotnet nuke :add-package GitVersion.Tool --version 5.8.2
+dotnet nuke :add-package GitVersion.Tool --version 5.12.0
 ```
 
 #### Usage
 
 ```csharp
 using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
 using CloudTek.Build.Versioning;
 
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
+// ReSharper disable once CheckNamespace
+namespace _build;
+
+public class Build : SmartBuild<VersioningStrategy.GitVersion>
 {
-    public static int Main () => Execute<Build>(x => x.Compile);
 
-    public Build() : base(Repository)
-    { }
+  /// <summary>
+  /// GitVersion information for SmartBuild (disabled)
+  /// </summary>
+  [GitVersion(Framework = "net9.0", NoFetch = true)]
+  // ReSharper disable once UnusedAutoPropertyAccessor.Global
+  public GitVersion GitVersion { get; set; } = default!;
 
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new []
-        {
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "src" / "My.Project" / "*.csproj" }
-        }
-    };
-}
-```
-
-The above definition is equivalent to:
-
-```csharp
-using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
-using CloudTek.Build.Versioning;
-
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
-{
-    public static int Main () => Execute<Build>(x => x.Compile);
-
-    public Build() : base(Repository)
-    { }
-
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new []
-        {
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "src" / "My.Project" / "*.csproj" }
-        }
-    };
-
-    [GitVersion(Framework = "net5.0", NoFetch = true)]
-    public GitVersion GitVersion { get; set; } = default!;
+  public static int Main() => Execute<Build>(x => x.All);
 }
 ```
 
 ### SmartBuild Package Restoration
 
-SmartBuild supports NuGet package manager, it is possible to extend it and add any other valid .NET package manager support.
+SmartBuild supports NuGet package manager by default.
 
-```csharp
-    public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
-    {
-        // (...)
-    }
-```
 
 Restoring packages, checking if there are any (unpinned) BETA packages within the solution is achieved from the CLI level
 irregardless of the used package manager type.
@@ -271,26 +151,19 @@ The filter syntax can be obtained from the official [documentation](https://lear
 
 ```csharp
 using CloudTek.Build;
-using CloudTek.Build.Packaging;
-using CloudTek.Build.Primitives;
 using CloudTek.Build.Versioning;
 
-public class Build : SmartBuild<PackageManager.NuGet, VersioningStrategy.Default>
+// ReSharper disable once CheckNamespace
+namespace _build;
+
+public class Build : SmartBuild<VersioningStrategy.Default>
 {
-    public static int Main () => Execute<Build>(x => x.Compile);
+  /// <summary>
+  /// The tests filter used all dotnet test invocations can be overriden here.
+  /// </summary>
+  protected override string TestFilter { get; init; } = "Flaky!=true|TestCategory=CategoryA";
 
-    public Build() : base(Repository)
-    { }
-
-    protected override string TestFilter { get; init; } = "Flaky!=true|TestCategory=CategoryA";
-
-    new static readonly Repository Repository = new ()
-    {
-        Artifacts = new []
-        {
-            new Artifact() { Type = ArtifactType.Package, Path = RootDirectory / "src" / "My.Project" / "*.csproj" }
-        }
-    };
+  public static int Main() => Execute<Build>(x => x.All);
 }
 ```
 
@@ -300,12 +173,11 @@ SmartBuild can collect code coverage information from your project.
 
 - `dotnet nuke --target UnitTests --collect-coverage <true | false>`
 
-Enabling the `--collect-coverage` will cause the SmartBuild to run `dotnet add package coverlet.msbuild --version 6.0.0` against all test assemblies and add additional cmdline arguments to `dotnet test` which will cause coverage information collection.
+Enabling the `--collect-coverage` will cause the SmartBuild to run `dotnet add package coverlet.msbuild` against all test assemblies and add additional cmdline arguments to `dotnet test` which will cause coverage information collection.
 
 The process is designed to collect coverage from multiple test assemblies.
 
-Intermediate results are stored in `test/coverage/coverage.temp.json`.
-Final coverage results are stored in `test/coverage/coverage.xml` in Cobertura format.
+Code Coverage results are stored in `results/coverage/*` in Cobertura format.
 
 > **Warning**
 >
@@ -313,26 +185,26 @@ Final coverage results are stored in `test/coverage/coverage.xml` in Cobertura f
 
 ### SmartBuild Checks
 
-The `RunChecks` target can be used in order to execute all standard checkswithin the solution.
+The `RunChecks` target can be used in order to execute all standard checks within the solution.
 
 - `dotnet nuke --target RunChecks`
 
 Checks can be skipped using dedicated boolean flags. The flags can be combined:
 
-- `--skip PackagesBetaCheck`: skips BETA packages check
-- `--skip PackagesOutdatedCheck`: skips OUTDATED packages check
+- `--skip BetaCheck`: skips BETA packages check
+- `--skip OutdatedCheck`: skips OUTDATED packages check
 - `--skip FormatCheck`: skips the format check
-- `--skip CommitLintCheck`: skips the commitlint check
+- `--skip CommitCheck`: skips the commitlint check
 
 Example:
 
-- `dotnet nuke --target RunChecks --skip PackagesBetaCheck`
+- `dotnet nuke --target RunChecks --skip BetaCheck`
 
-#### CommitLintCheck
+#### CommitCheck
 
-The `CommitLintCheck` target can be used in order to validate commit messages server-side using [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) and [husky](https://alirezanet.github.io/Husky.Net/)
+The `CommitCheck` target can be used in order to validate commit messages server-side using [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) and [husky](https://alirezanet.github.io/Husky.Net/)
 
-- `dotnet nuke --target CommitLintCheck`
+- `dotnet nuke --target CommitCheck`
 
 The target will run a dependend `HuskyInstall` target which will execute:
 
@@ -355,32 +227,37 @@ The target will cause no side-effects.
 
 The `Format` target works in the same way as `FormatCheck`, except for the fact that the `--no-verify` flags are NOT being added to the dotnet CLI and the target WILL CAUSE SIDE-EFFECTS.
 
-#### PackageBetaCheck
+#### BetaCheck
 
-The `PackageBetaCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
+The `BetaCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
 
-- `dotnet nuke --target PackageBetaCheck`
+- `dotnet nuke --target BetaCheck`
 
-The `PackageBetaCheck` will cause 1 additional target to be executed before `Restore`:
+The `BetaCheck` will cause 1 additional target to be executed before `Restore`:
 
 - `BuildDependencyTree`
 
-The `PackagesBetaCheck` will check the dependency tree for any BETA packages that are unpinned in either `.csproj` using the `[]` syntax (nuget) or in the global `paket.dependencies` file (paket).
+The `BetaCheck` will check the dependency tree for any BETA packages that are unpinned in either `.csproj` using the `[]` syntax (nuget) or in the global `paket.dependencies` file (paket).
 The target will cause `dotnet list package` to execute and gather all information about semantically versioned pre-release packages.
 
-#### PackageOutdatedCheck
+#### OutdatedCheck
 
-The `PackageOutdatedCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
+The `OutdatedCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
 
-- `dotnet nuke --target PackageOutdatedCheck`
+- `dotnet nuke --target OutdatedCheck`
 
-The `PackageOutdatedCheck` will cause 1 additional target to be executed before `Restore`:
+The `OutdatedCheck` will cause 1 additional target to be executed before `Restore`:
 
 - `BuildDependencyTree`
 
-The `PackageOutdatedCheck` will check the dependency tree for any OUTDATED packages that are unpinned in either `.csproj` using the `[]` syntax (nuget) or in the global `paket.dependencies` file (paket).
+The `OutdatedCheck` will check the dependency tree for any OUTDATED packages that are unpinned in either `.csproj` using the `[]` syntax (nuget) or in the global `paket.dependencies` file (paket).
 The target will cause `dotnet list package --outdated` to execute and gather all packages' `Latest` available versions to compare with their `Resolved` versions.
+
+#### VulnerabilityCheck
+
+The `VulnerabilityCheck` target can be used in order to check for packages which have known vulnerabiltiies.
+The command will execute `dotnet list package --vulnerable`. The output will be parsed and results will be emitted as telemetry. Currently the build does not break on this check.
 
 ##### Building the dependency tree
 
- `BuildDependencyTree` - will analyze the solution and create a map of projects' packages including their versions and pinned state. The target will be run before `PackageBetaCheck` or `PackageOutdatedCheck` targets.
+ `BuildDependencyTree` - will analyze the solution and create a map of projects' packages including their versions and pinned state. The target will be run before all checks requiring package information such as `BetaCheck` or `OutdatedCheck` or `VulnerabilityCheck` targets.
