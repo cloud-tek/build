@@ -25,3 +25,4 @@ csharp_style_namespace_declarations = file_scoped
 
 [*.{cs,vb}]
 dotnet_diagnostic.CA1016.severity = none
+#dotnet_diagnostic.IDE0005.severity = none

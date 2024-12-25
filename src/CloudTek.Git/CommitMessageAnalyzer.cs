@@ -9,7 +9,7 @@ namespace CloudTek.Git;
 /// </summary>
 public static class CommitMessageAnalyzer
 {
-  private static readonly string[] ExceptionMessages = new[] { "merge", "created branch", "apply suggestions" };
+  private static readonly string[] ExceptionMessages = ["merge", "created branch", "apply suggestions"];
 
   /// <summary>
   /// Analyzes last commit message based on the provided filename
@@ -66,14 +66,19 @@ public static class CommitMessageAnalyzer
         result = Analyze(e.Data);
 
         if (result == CommitMessageAnalysisResult.Invalid)
+        {
           sb.AppendLine(e.Data);
+        }
       }
     };
 
     proc.ErrorDataReceived += (sender, e) =>
     {
       if (string.IsNullOrWhiteSpace(e.Data))
+      {
         return;
+      }
+
       sb.AppendLine(e.Data);
     };
 
@@ -87,21 +92,27 @@ public static class CommitMessageAnalyzer
 
   private static int HandleResult(CommitMessageAnalysisResult result)
   {
-    switch (result)
+    try
     {
-      case CommitMessageAnalysisResult.Ok:
-        return 0;
-      case CommitMessageAnalysisResult.Invalid:
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("The git log contains at least one invalid commit message");
-        Console.WriteLine("All commits should follow the conventional commits convention");
-        Console.WriteLine("Example: 'feat(scope): subject' or 'feat: subject'");
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
-        Console.ResetColor();
-        return 1;
-      default:
-        throw new InvalidOperationException($"Unhandled result type: {result.ToString()}");
+      Console.ForegroundColor = ConsoleColor.Gray;
+      switch (result)
+      {
+        case CommitMessageAnalysisResult.Ok:
+          Console.WriteLine("Commit message validated");
+          return 0;
+        case CommitMessageAnalysisResult.Invalid:
+          Console.WriteLine("The git log contains at least one invalid commit message");
+          Console.WriteLine("All commits should follow the conventional commits convention");
+          Console.WriteLine("Example: 'feat(scope): subject' or 'feat: subject'");
+          Console.WriteLine("See more: https://www.conventionalcommits.org/en/v1.0.0/");
+          return 1;
+        default:
+          throw new InvalidOperationException($"Unhandled result type: {result}");
+      }
+    }
+    finally
+    {
+      Console.ResetColor();
     }
   }
 

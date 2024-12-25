@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    {
+      "name": "commit-message-linter",
+      "group": "commit-msg",
+      "command": "dotnet",
+      "args": ["script", ".husky/csx/commit-lint.csx", "--", "${args}"]
+    },
+    {
+      "name": "commit-message-linter-ci",
+      "group": "commit-msg",
+      "command": "dotnet",
+      "args": ["script", ".husky/csx/commit-lint-ci.csx", "--", "${args}"]
+    }
+  ]
+}

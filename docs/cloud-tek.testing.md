@@ -213,3 +213,22 @@ public class MyTests
   }
 }
 ```
+
+## TestMetadata
+
+### Feature
+
+```csharp
+public class MyTests
+{
+  [Feature("55312")]
+  [UnitTest]
+  [SmartFact(On.Linux)]
+  public void MyTestCase(int parameter)
+  {
+    // (...)
+  }
+}
+```
+
+The `FeatureAttribute` can be used to decorate tests to signify that they belong to a set of tests which are supposed to test a specific feature. In the future this will prove useful in order to verify that a specific subset of functionality is running as intended.

@@ -4,17 +4,17 @@ using Xunit.Sdk;
 namespace CloudTek.Testing;
 
 /// <summary>
-/// Discoverer for the <see cref="SystemTestAttribute"/>
+///   Discoverer for the <see cref="SystemTestAttribute" />
 /// </summary>
 public class SystemTestDiscoverer : ITraitDiscoverer
 {
   /// <summary>
-  /// The fully qualified type name of this discoverer
+  ///   The fully qualified type name of this discoverer
   /// </summary>
   public const string TypeName = AssemblyInfo.Name + "." + nameof(SystemTestDiscoverer);
 
   /// <summary>
-  /// Gets the trait values from the <paramref name="traitAttribute"/>
+  ///   Gets the trait values from the <paramref name="traitAttribute" />
   /// </summary>
   /// <param name="traitAttribute"></param>
   /// <returns>Traits of the target attribute</returns>

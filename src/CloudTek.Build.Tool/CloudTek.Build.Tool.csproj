@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>cloudtek-build</ToolCommandName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CloudTek.Build\CloudTek.Build.csproj" />
+    </ItemGroup>
+    <Import Project="..\Version.targets" />
+</Project>

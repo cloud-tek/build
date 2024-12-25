@@ -1,12 +1,14 @@
+using Xunit;
+
 namespace CloudTek.Testing;
 
 /// <summary>
-/// SmartFact attribute used to mark a test as a smart XUnit fact
+///   SmartFact attribute used to mark a test as a smart XUnit fact
 /// </summary>
-public sealed class SmartFactAttribute : Xunit.FactAttribute
+public sealed class SmartFactAttribute : FactAttribute
 {
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartFactAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartFactAttribute" /> class.
   /// </summary>
   /// <param name="on"></param>
   public SmartFactAttribute(On on)
@@ -15,7 +17,7 @@ public sealed class SmartFactAttribute : Xunit.FactAttribute
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartFactAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartFactAttribute" /> class.
   /// </summary>
   /// <param name="execute"></param>
   public SmartFactAttribute(Execute execute)
@@ -24,7 +26,7 @@ public sealed class SmartFactAttribute : Xunit.FactAttribute
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartFactAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartFactAttribute" /> class.
   /// </summary>
   /// <param name="execute"></param>
   /// <param name="on"></param>
@@ -34,7 +36,7 @@ public sealed class SmartFactAttribute : Xunit.FactAttribute
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="SmartFactAttribute"/> class.
+  ///   Initializes a new instance of the <see cref="SmartFactAttribute" /> class.
   /// </summary>
   /// <param name="execute"></param>
   /// <param name="on"></param>

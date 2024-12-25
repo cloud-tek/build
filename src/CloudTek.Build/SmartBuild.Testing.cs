@@ -1,107 +1,89 @@
+using CloudTek.Build.Extensions;
 using CloudTek.Build.Primitives;
 using Nuke.Common;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities.Collections;
+using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using ToolSettingsExtensions = CloudTek.Build.Extensions.ToolSettingsExtensions;
 
-namespace CloudTek.Build;
-
-public abstract partial class SmartBuild
+namespace CloudTek.Build
 {
-  /// <summary>
-  ///   dotnet nuke --target UnitTests --skip-unit-tests true
-  /// </summary>
-  [Parameter]
-  public bool SkipUnitTests { get; set; }
-
-  /// <summary>
-  ///   dotnet nuke --target IntegrationTests --skip-integration-tests true
-  /// </summary>
-  [Parameter]
-  public bool SkipIntegrationTests { get; set; }
-
-  /// <summary>
-  ///   dotnet nuke --target UnitTests --collect-coverage true
-  /// </summary>
-  [Parameter]
-  public bool CollectCoverage { get; set; }
-
-  /// <summary>
-  /// dotnet nuke --target Test
-  /// Executes all test targets against the solution
-  /// </summary>
-  protected internal virtual Target Test => _ => _
-    .CheckIfSkipped(nameof(Test), this)
-    .DependsOn(UnitTests, IntegrationTests, RunChecks)
-    .Executes(() => { });
-
-  /// <summary>
-  /// dotnet nuke --target UnitTests
-  /// Executes dotnet test --filter Category=UnitTest against all test projects
-  /// </summary>
-  protected internal virtual Target UnitTests => _ => _
-    .CheckIfSkipped(nameof(UnitTests), this)
-    .DependsOn(Compile)
-    .Before(IntegrationTests)
-    .OnlyWhenDynamic(() => !SkipUnitTests)
-    .WhenSkipped(DependencyBehavior.Skip)
-    .Executes(() =>
-    {
-      Repository.Tests.ForEach(test =>
-      {
-        InitializeCoverageCollector(test);
-
-        DotNetTest(s => ConfigureTestSettings(s, test, TestType.UnitTests, test.Equals(Repository.Tests.Last())));
-      });
-    });
-
-  /// <summary>
-  /// dotnet nuke --target IntegrationTests
-  /// Executes dotnet test --filter Category=IntegrationTest against all test projects
-  /// </summary>
-  protected internal virtual Target IntegrationTests => _ => _
-    .CheckIfSkipped(nameof(IntegrationTests), this)
-    .DependsOn(Compile)
-    .OnlyWhenDynamic(() => !SkipIntegrationTests)
-    .WhenSkipped(DependencyBehavior.Skip)
-    .Executes(() =>
-    {
-      Repository.Tests.ForEach(test =>
-      {
-        InitializeCoverageCollector(test);
-
-        DotNetTest(s => ConfigureTestSettings(s, test, TestType.IntegrationTests, test.Equals(Repository.Tests.Last())));
-      });
-    });
-
-  private DotNetTestSettings ConfigureTestSettings(DotNetTestSettings settings, Test test, TestType type, bool isFinal = false)
+  public abstract partial class SmartBuild
   {
-    return settings
-      .SetProjectFile(test.Project)
-      .SetLoggers($"trx;LogFileName={test.Project.NameWithoutExtension}.{Enum.GetName(typeof(TestType), type)}.trx")
-      .SetConfiguration(Configuration)
-      .SetResultsDirectory(Repository.TestResultsDirectory)
-      .SetProcessToolPath(DotNetPath)
-      .SetNoRestore(SolutionRestored)
-      .SetNoBuild(SolutionBuilt)
-      .Execute(s => s.SetProcessEnvironmentVariables(EnvironmentVariables))
-      .When(Constants.TestCategories.CodeCoverageCategories.Contains(type) && CollectCoverage, settings =>
-        settings.SetProcessArgumentConfigurator(args =>
-          args
-            .Add("/p:CollectCoverage=true")
-            .Add("/maxcpucount:1")
-            .Add($"/p:MergeWith={Repository.TestCoverageDirectory}/coverage.temp.json")
-            .Add($"/p:CoverletOutput={Repository.TestCoverageDirectory}/coverage.temp.json", !isFinal)
-            .Add($"/p:CoverletOutput={Repository.TestCoverageDirectory}/coverage.xml", isFinal)
-            .Add("/p:CoverletOutputFormat=cobertura", isFinal)))
-      .SetFilter(TestFilter)
-      .SetFilter($"Category={type}");
-  }
+    private bool _coverletAdded;
 
-  private void InitializeCoverageCollector(Test test)
-  {
-    if (CollectCoverage)
-      DotNet("add package coverlet.msbuild --version 6.0.0", test.Project.Parent);
+    /// <summary>
+    /// dotnet nuke --target Test
+    /// Executes Unit and Integration tests
+    /// </summary>
+    protected virtual Target Test => _ => _
+      .Description("Run all tests (Unit and Integration)")
+      .DependsOn(UnitTests, IntegrationTests, RunChecks)
+      .Executes(() => { });
+
+    /// <summary>
+    /// Initializes the code-coverage collector
+    /// </summary>
+    protected virtual Target InitializeCoverageCollector =>
+      _ => _.Executes(InitializeCoverletCollector);
+
+    /// <summary>
+    /// dotnet nuke --target UnitTests
+    /// </summary>
+    protected virtual Target UnitTests => _ => _
+      .Before(IntegrationTests)
+      .DependsOn(Compile, InitializeCoverageCollector)
+      .Executes(
+        () =>
+        {
+          DotNetTest(s => ConfigureTestSettings(s, TestType.UnitTests));
+        });
+
+    /// <summary>
+    /// dotnet nuke --target IntegrationTests
+    /// </summary>
+    protected virtual Target IntegrationTests => _ => _
+      .DependsOn(Compile, InitializeCoverageCollector)
+      .Executes(
+        () =>
+        {
+          DotNetTest(s => ConfigureTestSettings(s, TestType.IntegrationTests));
+        });
+
+    private DotNetTestSettings ConfigureTestSettings(DotNetTestSettings settings, TestType type)
+    {
+      return settings
+        .SetLoggers($"trx")
+        .SetConfiguration(Configuration)
+        .SetResultsDirectory(Repository.TestResultsDirectory)
+        .SetProcessToolPath(DotNetPath)
+        .SetNoRestore(SolutionRestored)
+        .SetNoBuild(SolutionBuilt)
+        .Execute(s => s.SetProcessEnvironmentVariables(EnvironmentVariables))
+        .ExecuteWhen(predicate: CollectCoverage, action: s =>
+          s.SetDataCollector(
+            "XPlat Code Coverage;Format=Cobertura;IncludeTestAssembly=false;ExcludeAssembliesWithoutSources=MissingAll;ExcludeByFile=**/*.g.cs;Exclude=[*]*Migrations*;"))
+        .SetFilter(TestFilter)
+        .SetFilter($"Category={type}");
+    }
+
+    private void InitializeCoverletCollector()
+    {
+      if (CollectCoverage && !_coverletAdded)
+      {
+        Log.Information("Initializing coverlet.collector package in all test projects ...");
+
+        Repository.Projects.Where(p => p.Type == ProjectType.Test && p.ProjectProperties.HasCodeCoveragePackage != true)
+          .ForEach(
+            p =>
+            {
+              DotNet($"add {p.Path} package coverlet.collector", Repository.RootDirectory);
+            });
+
+        _coverletAdded = true;
+      }
+    }
   }
 }
