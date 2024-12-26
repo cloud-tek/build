@@ -46,7 +46,6 @@ namespace CloudTek.Build
       .Description("Publish test artifacts to respective /artifacts/tests subdirectory")
       .After(Test)
       .DependsOn(Compile)
-      .Before(Publish)
       .Executes(
         () =>
         {
@@ -71,7 +70,6 @@ namespace CloudTek.Build
       .Description("Publish artifacts to respective /artifacts/* subdirectories")
       .After(Test)
       .DependsOn(Compile)
-      .Before(Publish)
       .Executes(
         () =>
         {
@@ -90,6 +88,7 @@ namespace CloudTek.Build
         });
 
     protected virtual Target Publish => _ => _
+      .DependsOn(PublishTests, PublishArtifacts)
       .Executes(() =>
       {
         Log.Information($"All artifacts published...");
