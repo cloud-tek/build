@@ -3,6 +3,7 @@ using Xunit;
 using Xunit.Sdk;
 
 namespace CloudTek.Testing.Tests;
+
 public class TraitTests
 {
   [Fact]
