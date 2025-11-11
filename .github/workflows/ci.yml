@@ -47,7 +47,7 @@ jobs:
     name: build
     with:
       Directory: ${{ github.workspace }}
-      NetCoreVersion: 9.0.100
+      NetCoreVersion: 10.0.100-rc.2.25502.107
       GitVersion:   false
       Compile:      true
       UnitTests:    true

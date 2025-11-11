@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-   <TargetFramework>net9.0</TargetFramework>
+   <TargetFramework>net10.0</TargetFramework>
     <RepositoryUrl>https://github.com/cloud-tek/build</RepositoryUrl>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
@@ -30,6 +30,7 @@
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
     <PackageReference Include="SemVer" />
     <PackageReference Include="Microsoft.Build" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include=".template\**" />
