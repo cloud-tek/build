@@ -13,46 +13,80 @@
  * rest is a long description with more detail on the module's purpose or usage,
  * if appropriate. All modules should have a short description.
  */
-import { dag, Container, Directory, object, func } from "@dagger.io/dagger"
+import { dag, Container, Directory, Changeset, object, func, argument } from "@dagger.io/dagger"
+
+@object()
+export class NukeBuildOutput {
+  artifacts: Directory
+  results: Directory
+
+  constructor(artifacts: Directory, results: Directory) {
+    this.artifacts = artifacts;
+    this.results = results;
+  }
+
+  // ✅ Add a function to export both directories
+  @func()
+  async export(hostPath: string): Promise<string> {
+    // Export 'artifacts' to a subdirectory named 'artifacts' inside the hostPath
+    await this.artifacts.export(`${hostPath}/artifacts`);
+
+    // Export 'results' to a subdirectory named 'results' inside the hostPath
+    await this.results.export(`${hostPath}/results`);
+
+    // Return a message indicating success (or void, Dagger usually handles the success check)
+    return `Successfully exported artifacts and results to ${hostPath}`;
+  }
+}
 
 @object()
 export class DaggerBuild {
 
   @func()
-  nukeBuild(directoryArg: Directory): Container {
+  async build(
+    @argument({ defaultPath: "." }) source: Directory,
+    base?: Container,
+    target: string = "All",
+  ): Promise<Changeset> {
+
+    const container = (base ?? dag.container().from("mcr.microsoft.com/dotnet/sdk:10.0").withWorkdir("/app"))
+      .withDirectory(".", source)
+    const before = container.directory(".")
+    const after = container
+      .withExec(["dotnet", "tool", "restore"])
+      .withExec(["dotnet", "tool", "run", "nuke", "--target", target])
+      .directory(".")
+    return after.changes(before)
+  }
+
+  @func()
+  async nukeBuild(
+      directory: Directory,
+      target: string = "All",
+      image: string = "mcr.microsoft.com/dotnet/sdk:10.0"): Promise<NukeBuildOutput> {
     const container = dag
       .container()
-      .from("mcr.microsoft.com/dotnet/sdk:10.0")
-      .withMountedDirectory("/app", directoryArg)
+      .from(image)
+      .withMountedDirectory("/app", directory)
       .withWorkdir("/app")
+      // .withExec(["pwd"])
+      // .withExec(["ls", "-l"]) // ensure .config/dotnet-tools.json is actually there
+      // .withExec(["cat", ".config/dotnet-tools.json"])
       .withExec(["dotnet", "tool", "restore"])
-      .withExec(["dotnet", "nuke", "--target", "Compile"]);
+      .withExec(["dotnet", "tool", "run", "nuke", "--target", target])
+      ;
 
-    const results: Directory = container.directory("/app/results");
-    const artifacts: Directory = container.directory("/app/artifacts");
+    const results: Directory = container.directory("./results");
+    const artifacts: Directory = container.directory("./artifacts");
 
-    return container;
-  }
+    await results.entries();
+    await artifacts.entries();
 
-  /**
-   * Returns a container that echoes whatever string argument is provided
-   */
-  @func()
-  containerEcho(stringArg: string): Container {
-    return dag.container().from("alpine:latest").withExec(["echo", stringArg])
-  }
+    // await artifacts.export("./artifacts");
 
-  /**
-   * Returns lines that match a pattern in the files of the provided Directory
-   */
-  @func()
-  async grepDir(directoryArg: Directory, pattern: string): Promise<string> {
-    return dag
-      .container()
-      .from("alpine:latest")
-      .withMountedDirectory("/mnt", directoryArg)
-      .withWorkdir("/mnt")
-      .withExec(["grep", "-R", pattern, "."])
-      .stdout()
+    // // await results.export("./results");
+    // await artifacts.export("./artifacts", { wipe: true });
+
+    return new NukeBuildOutput(artifacts, results);
   }
 }
