@@ -1,0 +1,53 @@
+name: ci
+
+env:
+  NETCORE_VERSION: 10.0.100
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  DOTNET_ROLL_FORWARD: Minor
+
+on:
+  # pull_request:
+  #   types:
+  #   - closed
+  #   branches:
+  #   - main
+  #   paths:
+  #   - ".config/*.json"
+  #   - ".github/workflows/**"
+  #   - "build/**"
+  #   - "src/**"
+  #   - "tests/**"
+  #   - "GitVersion.yml"
+  #   - "global.json"
+  #   - "*.props"
+  #   - "*.targets"
+  # push:
+  #   branches:
+  #   - feature/*
+  #   - hotfix/*
+  #   - bug/*
+  #   - release/*
+  #   paths:
+  #   - ".github/workflows/**"
+  #   - "build/**"
+  #   - "src/**"
+  #   - "tests/**"
+  #   - "GitVersion.yml"
+  workflow_dispatch:
+    inputs: {}
+
+permissions:
+  contents: write
+  checks: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/dagger.yml
+    # uses: ./.github/workflows/dotnet.yml
+    name: build
+    with:
+      Directory: ${{ github.workspace }}
+      NetCoreVersion: 10.0.100
+    secrets:
+      GH_TOKEN:       '${{ secrets.CLOUDTEK_AUTOMATION_TOKEN }}'
+      NUGET_API_KEY:  '${{ secrets.NUGET_API_KEY }}'

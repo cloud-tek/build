@@ -1,8 +1,0 @@
-{
-  "name": "dagger-build",
-  "engineVersion": "v0.19.6",
-  "sdk": {
-    "source": "typescript"
-  },
-  "source": ".dagger"
-}
