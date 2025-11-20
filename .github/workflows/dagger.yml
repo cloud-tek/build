@@ -1,0 +1,124 @@
+name: "dagger.yml (reusable)"
+on:
+  workflow_call:
+    secrets:
+      DAGGER_CLOUD_TOKEN:
+        description: "dagger.cloud token"
+        required: false
+      GH_TOKEN:
+        description: "GitHub token"
+        required: false
+      NUGET_API_KEY:
+        description: "NuGet API Key"
+        required: false
+    inputs:
+      Directory:
+        description: "Project directory"
+        type: string
+        required: true
+      NetCoreVersion:
+        type: string
+        required: true
+
+jobs:
+  dagger:
+    name: dagger
+    runs-on: ubuntu-latest
+    env:
+      DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+          token: ${{ secrets.GH_TOKEN }}
+      - shell: bash
+        name: git config
+        if: |
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      # - id: auto-tag
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   uses: cloud-tek/actions/auto-tag@0.12
+      #   with:
+      #     branch: refs/heads/main
+      - uses: actions/setup-dotnet@v1
+        name: dotnet installer
+        with:
+          dotnet-version: ${{ inputs.NetCoreVersion }}
+      - name: global.json
+        shell: bash
+        run: |
+          if [ -f "${{ github.workspace }}/global.json" ]; then
+            echo "global.json exists"
+          else
+            echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
+          fi
+      - name: Hello
+        uses: dagger/dagger-for-github@v8.2.0
+        with:
+          module: github.com/cloud-tek/poc-dagger-dotnet@refs/tags/v0.0.1
+          call: build --source=${{ !inputs.Directory }} --auto-apply
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          version: "v0.19.6"  # semver vX.Y.Z
+      # - name: setup gitversion
+      #   uses: gittools/actions/gitversion/setup@v0.12.1
+      #   with:
+      #     versionSpec: '5.x'
+      # - name: run giversion
+      #   uses: gittools/actions/gitversion/execute@v0.12.1
+      # - run: |
+      #     dotnet nuget list source
+      #     dotnet tool restore
+      #   name: dotnet tool restore
+      #   working-directory: ${{ inputs.Directory }}
+      #   shell: bash
+      # - name: dotnet nuke --target All
+      #   shell: bash
+      #   working-directory: ${{ inputs.Directory }}
+      #   run: |
+      #     dotnet nuke --target All
+      # - name: dotnet nuke --target Push
+      #   shell: bash
+      #   working-directory: ${{ inputs.Directory }}
+      #   run: |
+      #     dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
+      - name: tree results
+        run: |
+          tree ${{ github.workspace }}/results
+      - name: tree artifacts
+        run: |
+          tree ${{ github.workspace }}/artifacts
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: ${{ inputs.UnitTests }} || ${{ inputs.IntegrationTests }} && (success() || failure())
+        with:
+          name: XUnit Tests # Name of the check run which will be created
+          path: ${{ github.workspace }}/results/tests/*.trx
+          reporter: dotnet-trx # Format of test results
+      # - name: gh release create
+      #   shell: bash
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      #   run: |
+      #     BRANCH="${{ github.event.pull_request.head.ref }}"
+      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+      #     then
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+      #       gh release create ${BASH_REMATCH[3]} --title "Release ${BASH_REMATCH[3]}" --verify-tag
+      #     else
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+      #     fi
