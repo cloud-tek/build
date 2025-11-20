@@ -1,4 +1,4 @@
-name: ci
+name: ci-dagger
 
 env:
   NETCORE_VERSION: 10.0.100
