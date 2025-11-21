@@ -67,7 +67,7 @@ jobs:
       - name: Hello
         uses: dagger/dagger-for-github@v8.2.0
         with:
-          module: github.com/cloud-tek/poc-dagger-dotnet@refs/tags/v0.0.1
+          module: git@github.com/cloud-tek/poc-dagger-dotnet@refs/tags/v0.0.1
           call: build --source=${{ !inputs.Directory }} --auto-apply
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           version: "v0.19.6"  # semver vX.Y.Z
