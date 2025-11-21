@@ -43,6 +43,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           gh auth login
+      - shell: bash
+        name: gh auth login
+        run: |
+          gh auth login
       # - id: auto-tag
       #   if: |
       #     github.ref == 'refs/heads/main' &&
