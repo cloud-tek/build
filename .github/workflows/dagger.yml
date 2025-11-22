@@ -2,6 +2,9 @@ name: "dagger.yml (reusable)"
 on:
   workflow_call:
     secrets:
+      DAGGER_SSH_PRIVATE_KEY:
+        description: "dagger@cloud-tek.io key"
+        required: true
       DAGGER_CLOUD_TOKEN:
         description: "dagger.cloud token"
         required: false
@@ -32,21 +35,21 @@ jobs:
         with:
           fetch-depth: "0"
           token: ${{ secrets.GH_TOKEN }}
-      - shell: bash
-        name: git config
-        if: |
-          github.ref == 'refs/heads/main' &&
-          github.event_name == 'pull_request' &&
-          github.event.action == 'closed' &&
-          github.event.pull_request.merged == true
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          gh auth login
-      - shell: bash
-        name: gh auth login
-        run: |
-          gh auth login
+      # - shell: bash
+      #   name: git config
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
+      #     gh auth login
+      # - shell: bash
+      #   name: gh auth login
+      #   run: |
+      #     gh auth login
       # - id: auto-tag
       #   if: |
       #     github.ref == 'refs/heads/main' &&
@@ -56,6 +59,14 @@ jobs:
       #   uses: cloud-tek/actions/auto-tag@0.12
       #   with:
       #     branch: refs/heads/main
+      - name: 'git config'
+        run: |
+          git config --global url."git@github.com:".insteadOf https://github.com
+      - name: 'Set up SSH Agent'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DAGGER_SSH_PRIVATE_KEY }}
+
       - uses: actions/setup-dotnet@v5
         name: dotnet installer
         with:
