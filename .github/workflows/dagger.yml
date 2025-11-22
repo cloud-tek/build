@@ -35,34 +35,10 @@ jobs:
         with:
           fetch-depth: "0"
           token: ${{ secrets.GH_TOKEN }}
-      # - shell: bash
-      #   name: git config
-      #   if: |
-      #     github.ref == 'refs/heads/main' &&
-      #     github.event_name == 'pull_request' &&
-      #     github.event.action == 'closed' &&
-      #     github.event.pull_request.merged == true
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     gh auth login
-      # - shell: bash
-      #   name: gh auth login
-      #   run: |
-      #     gh auth login
-      # - id: auto-tag
-      #   if: |
-      #     github.ref == 'refs/heads/main' &&
-      #     github.event_name == 'pull_request' &&
-      #     github.event.action == 'closed' &&
-      #     github.event.pull_request.merged == true
-      #   uses: cloud-tek/actions/auto-tag@0.12
-      #   with:
-      #     branch: refs/heads/main
       - name: 'git config'
         run: |
           git config --global url."git@github.com:".insteadOf https://github.com
-      - name: 'Set up SSH Agent'
+      - name: 'ssh-agent'
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DAGGER_SSH_PRIVATE_KEY }}
@@ -79,7 +55,11 @@ jobs:
           else
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
           fi
-      - name: Hello
+      - name: diag
+        shell: bash
+        run: |
+          echo "Directory ${{ !inputs.Directory }}"
+      - name: dagger call build
         uses: dagger/dagger-for-github@v8.2.0
         with:
           module: git@github.com/cloud-tek/poc-dagger-dotnet@refs/tags/v0.0.1
