@@ -13,8 +13,8 @@
     <PackageVersion Include="Microsoft.Build" Version="17.14.28" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.14.28" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
-    <PackageVersion Include="Nuke.Build" Version="9.0.4" />
-    <PackageVersion Include="Nuke.Common" Version="9.0.4" />
+    <PackageVersion Include="Nuke.Build" Version="[9.0.4]" />
+    <PackageVersion Include="Nuke.Common" Version="[9.0.4]" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.13.1" />
     <PackageVersion Include="SemVer" Version="3.0.0" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
