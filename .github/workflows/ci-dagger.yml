@@ -6,33 +6,6 @@ env:
   DOTNET_ROLL_FORWARD: Minor
 
 on:
-  # pull_request:
-  #   types:
-  #   - closed
-  #   branches:
-  #   - main
-  #   paths:
-  #   - ".config/*.json"
-  #   - ".github/workflows/**"
-  #   - "build/**"
-  #   - "src/**"
-  #   - "tests/**"
-  #   - "GitVersion.yml"
-  #   - "global.json"
-  #   - "*.props"
-  #   - "*.targets"
-  # push:
-  #   branches:
-  #   - feature/*
-  #   - hotfix/*
-  #   - bug/*
-  #   - release/*
-  #   paths:
-  #   - ".github/workflows/**"
-  #   - "build/**"
-  #   - "src/**"
-  #   - "tests/**"
-  #   - "GitVersion.yml"
   workflow_dispatch:
     inputs: {}
 
@@ -46,7 +19,7 @@ jobs:
     # uses: ./.github/workflows/dotnet.yml
     name: build
     with:
-      Directory: '${{ github.workspace }}'
+      Directory: .
       NetCoreVersion: '10.0.100'
     secrets:
       GH_TOKEN:       '${{ secrets.CLOUDTEK_AUTOMATION_TOKEN }}'
