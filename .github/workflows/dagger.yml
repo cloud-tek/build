@@ -68,28 +68,6 @@ jobs:
           call: build --source=${{ github.workspace }}/${{ inputs.Directory }} --auto-apply
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           version: "v0.19.6"  # semver vX.Y.Z
-      # - name: setup gitversion
-      #   uses: gittools/actions/gitversion/setup@v0.12.1
-      #   with:
-      #     versionSpec: '5.x'
-      # - name: run giversion
-      #   uses: gittools/actions/gitversion/execute@v0.12.1
-      # - run: |
-      #     dotnet nuget list source
-      #     dotnet tool restore
-      #   name: dotnet tool restore
-      #   working-directory: ${{ inputs.Directory }}
-      #   shell: bash
-      # - name: dotnet nuke --target All
-      #   shell: bash
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke --target All
-      # - name: dotnet nuke --target Push
-      #   shell: bash
-      #   working-directory: ${{ inputs.Directory }}
-      #   run: |
-      #     dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
       - name: tree results
         run: |
           tree ${{ github.workspace }}/results
