@@ -133,11 +133,19 @@ jobs:
         working-directory: ${{ inputs.Directory }}
         run: |
           dotnet nuke --target All
-      - name: dotnet nuke --target Push
+      - name: dotnet nuget push
         shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
+          for package in ${{ inputs.Directory }}/artifacts/packages/*.nupkg; do
+            if [ -f "$package" ]; then
+              echo "Pushing $package to ${{ inputs.NuGetApiUrl }}"
+              dotnet nuget push "$package" \
+                --source "${{ inputs.NuGetApiUrl }}" \
+                --api-key "${{ secrets.NUGET_API_KEY }}" \
+                --skip-duplicate
+            fi
+          done
       - name: tree results
         run: |
           tree ${{ github.workspace }}/results
