@@ -42,13 +42,12 @@ permissions:
 
 jobs:
   build:
-    uses: cloud-tek/github/.github/workflows/nuke.yml@main
-    # uses: ./.github/workflows/dotnet.yml
+    #uses: cloud-tek/github/.github/workflows/nuke.yml@main
+    uses: ./.github/workflows/dotnet.yml
     name: build
     with:
       Directory: ${{ github.workspace }}
       NetCoreVersion: 10.0.100
-      GitVersion:   false
       Compile:      true
       UnitTests:    true
       Push:         true
