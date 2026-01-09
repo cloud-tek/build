@@ -39,7 +39,7 @@ public abstract partial class VersioningStrategy
       if (string.IsNullOrEmpty(buildNumber) || git.IsOnDevelopBranch())
         return suffix;
 
-      return $"{suffix}{CleanBuildNumber(buildNumber)}";
+      return $"{suffix}.{CleanBuildNumber(buildNumber)}";
     }
 
     internal static string CleanBuildNumber(string buildNumber)
