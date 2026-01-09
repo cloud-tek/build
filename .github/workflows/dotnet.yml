@@ -81,7 +81,7 @@ jobs:
       NUKE_SKIP_PUBLISH: ${{ !inputs.Publish }}
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: "0"
           token: ${{ secrets.GH_TOKEN }}
@@ -95,15 +95,15 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-      - id: auto-tag
-        if: |
-          github.ref == 'refs/heads/main' &&
-          github.event_name == 'pull_request' &&
-          github.event.action == 'closed' &&
-          github.event.pull_request.merged == true
-        uses: cloud-tek/actions/auto-tag@0.12
-        with:
-          branch: refs/heads/main
+      # - id: auto-tag
+      #   if: |
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   uses: cloud-tek/actions/auto-tag@0.12
+      #   with:
+      #     branch: refs/heads/main
       - uses: actions/setup-dotnet@v1
         name: dotnet installer
         with:
@@ -116,12 +116,12 @@ jobs:
           else
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
           fi
-      - name: setup gitversion
-        uses: gittools/actions/gitversion/setup@v0.12.1
-        with:
-          versionSpec: '5.x'
-      - name: run giversion
-        uses: gittools/actions/gitversion/execute@v0.12.1
+      # - name: setup gitversion
+      #   uses: gittools/actions/gitversion/setup@v0.12.1
+      #   with:
+      #     versionSpec: '5.x'
+      # - name: run giversion
+      #   uses: gittools/actions/gitversion/execute@v0.12.1
       - run: |
           dotnet nuget list source
           dotnet tool restore
