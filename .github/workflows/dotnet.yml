@@ -135,9 +135,9 @@ jobs:
           dotnet nuke --target All
       - name: dotnet nuget push
         shell: bash
-        working-directory: ${{ inputs.Directory }}
+        working-directory: ${{ github.workspace }}
         run: |
-          for package in ${{ inputs.Directory }}/artifacts/packages/*.nupkg; do
+          for package in ${{ github.workspace }}/artifacts/packages/*.nupkg; do
             if [ -f "$package" ]; then
               echo "Pushing $package to ${{ inputs.NuGetApiUrl }}"
               dotnet nuget push "$package" \
