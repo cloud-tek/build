@@ -131,6 +131,8 @@ jobs:
       - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
+        env:
+          BUILDNUMBER: ${{ github.run_number }}
         run: |
           dotnet nuke --target All
       - name: dotnet nuget push
