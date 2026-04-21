@@ -19,7 +19,8 @@ public record ProjectProperties(
   bool? PackAsTool,
   bool? IsTestProject,
   string? OutputType,
-  bool? HasCodeCoveragePackage);
+  bool? HasCodeCoveragePackage,
+  string? VersionPrefix);
 
 /// <summary>
 /// Project type helper enum
@@ -121,12 +122,17 @@ public class Project
     var hasCodeCoveragePackage =
       msProject.Items.Any(p => p.ItemType == "PackageReference" && p.EvaluatedInclude == "coverlet.collector");
     var packAsTool = TryGetBool(msProject.GetPropertyValue("PackAsTool"));
+    var versionPrefixValue = msProject.GetPropertyValue("VersionPrefix");
+    var versionPrefix = !string.IsNullOrEmpty(versionPrefixValue)
+      ? versionPrefixValue
+      : StripSuffix(msProject.GetPropertyValue("Version"));
     var projectProperties = new ProjectProperties(
       isPackable,
       packAsTool,
       isTestProject,
       outputType,
-      hasCodeCoveragePackage);
+      hasCodeCoveragePackage,
+      versionPrefix);
 
     return (assemblyName, projectProperties);
   }
@@ -135,5 +141,12 @@ public class Project
   {
     bool? parsed = bool.TryParse(value, out var p) ? p : null;
     return parsed;
+  }
+
+  private static string? StripSuffix(string value)
+  {
+    if (string.IsNullOrEmpty(value)) return null;
+    var dash = value.IndexOf('-');
+    return dash < 0 ? value : value.Substring(0, dash);
   }
 }
