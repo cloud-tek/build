@@ -170,8 +170,8 @@ public void MySystemTest() { }
 ```
 
 Build targets filter by category:
-- `UnitTests` → `Category=Unit`
-- `IntegrationTests` → `Category=Integration`
+- `UnitTests` → `Category=UnitTests`
+- `IntegrationTests` → `Category=IntegrationTests`
 
 ### Platform-Specific Tests
 
@@ -257,7 +257,7 @@ public class Build : SmartBuild<VersioningStrategy.Default>
 
 Or via CLI:
 ```bash
-dotnet nuke --target UnitTests --test-filter "Category=Unit&Priority=High"
+dotnet nuke --target UnitTests --test-filter "Category=UnitTests&Priority=High"
 ```
 
 Filter syntax: [Microsoft Docs](https://learn.microsoft.com/en-us/dotnet/core/testing/selective-unit-tests)
@@ -324,8 +324,8 @@ All build parameters can be set via environment variables:
 
 ```bash
 # Format options (use ONE, not both):
-export TESTFILTER="Category=Unit"           # Option 1
-export NUKE_TESTFILTER="Category=Unit"      # Option 2
+export TESTFILTER="Category=UnitTests"           # Option 1
+export NUKE_TESTFILTER="Category=UnitTests"      # Option 2
 
 # Other examples
 export CONFIGURATION="Release"
