@@ -24,6 +24,8 @@ dotnet nuke --target Restore
 
 ### Common Commands
 
+Repositories without their own NUKE build project can run the same targets through the `cloudtek-build` dotnet tool (`dotnet tool run cloudtek-build --target <Target>`).
+
 ```bash
 # Run all checks and tests
 dotnet nuke --target Test
@@ -81,6 +83,7 @@ dotnet nuke --target Test --skip IntegrationTests
 - **`BetaCheck`** - Detect unpinned pre-release packages
 - **`OutdatedCheck`** - Detect outdated packages
 - **`VulnerabilityCheck`** - Scan for vulnerable packages
+- **`HuskyInstall`** - Restore `husky` from the local tool manifest and install git hooks (installs the tool only if it is not listed yet; never upgrades a pinned version)
 
 **Common Usage:**
 ```bash
@@ -102,6 +105,7 @@ dotnet nuke --target Format
 
 ### Package Management Targets
 
+- **`DotnetOutdatedInstall`** - Restore `dotnet-outdated-tool` from the local tool manifest (installs it only if it is not listed yet; never upgrades a pinned version)
 - **`UpdateOutdated`** - Update outdated packages
 - **`BuildDependencyTree`** - Analyze solution dependencies
 
@@ -452,6 +456,10 @@ dotnet nuke --target BetaCheck --packages-filter "Nuke"
 dotnet nuke --target UpdateOutdated
 ```
 
+### Updating Local Tools
+
+Tools in `.config/dotnet-tools.json` are pinned. SmartBuild only restores them and never upgrades them. To upgrade a tool, run `dotnet tool update <tool-id>` and commit the manifest.
+
 ## Troubleshooting
 
 ### "Could not resolve {VariableName} since multiple values are provided"
@@ -560,3 +568,5 @@ When working with projects using CloudTek.Build:
 9. **Coverage requires test execution** - Empty test runs fail when `--collect-coverage` is enabled
 
 10. **SmartBuild is inherited, not modified** - Projects extend it; the base class is in the NuGet package
+
+11. **Local tools are pinned** - Builds never modify `.config/dotnet-tools.json`; tool upgrades are explicit `dotnet tool update` commits

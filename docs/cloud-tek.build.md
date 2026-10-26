@@ -127,14 +127,20 @@ Otherwise the targets only run `dotnet tool restore`, so builds never modify the
 
 `HuskyInstall` also copies the `.husky` hook templates when that folder is missing, and then runs `dotnet husky install`.
 
+`DotnetOutdatedInstall` runs as a dependency of `BuildDependencyTree` (and so of `BetaCheck`, `OutdatedCheck` and `RunChecks`) and of `UpdateOutdated`. `HuskyInstall` runs as a dependency of `CommitCheck`.
+
+`UpdateOutdated` updates NuGet package references, not local tools.
+
 ### CloudTek.Build.Tool (cloudtek-build)
 
 `CloudTek.Build.Tool` is a dotnet tool that runs the built-in `SmartBuild<VersioningStrategy.Default>`, so a repository can use SmartBuild targets without its own NUKE build project.
 
 ```bash
-dotnet tool install CloudTek.Build.Tool
+dotnet tool install CloudTek.Build.Tool --create-manifest-if-needed
 dotnet tool run cloudtek-build --target UnitTests
 ```
+
+The tool is pinned in `.config/dotnet-tools.json`. Commit the manifest, and other machines and CI run `dotnet tool restore`. The same pinning rules apply to the tool itself: upgrade it with `dotnet tool update CloudTek.Build.Tool` and commit the manifest.
 
 It accepts any SmartBuild target and parameter (for example `--target UnitTests --collect-coverage true`) and runs the `All` target by default. If the current directory has no `.nuke/` folder, the tool creates one (with a `.gitignore`).
 
