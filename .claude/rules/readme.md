@@ -2,11 +2,12 @@
 
 ## Overview
 
-This project uses the **CloudTek.Build** toolset - a standardized build and testing framework consisting of three NuGet packages:
+This project uses the **CloudTek.Build** toolset - a standardized build and testing framework consisting of four NuGet packages:
 
 1. **CloudTek.Build** - NUKE-based build automation with quality checks
-2. **CloudTek.Testing** - XUnit extensions for conditional and categorized testing
-3. **CloudTek.Git** - Conventional commit validation via Husky.NET
+2. **CloudTek.Build.Tool** - the `cloudtek-build` dotnet tool that runs SmartBuild targets without a repo-local NUKE build project
+3. **CloudTek.Testing** - XUnit extensions for conditional and categorized testing
+4. **CloudTek.Git** - Conventional commit validation via Husky.NET
 
 These packages provide a consistent development workflow across all CloudTek repositories.
 
