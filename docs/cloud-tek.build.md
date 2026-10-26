@@ -93,7 +93,7 @@ public class Build : SmartBuild<VersioningStrategy.Default>
 
 ```bash
 dotnet tool restore
-dotnet nuke :add-package GitVersion.Tool --version 5.12.0
+dotnet nuke :add-package GitVersion.Tool --version 6.5.0
 ```
 
 #### Usage
@@ -111,13 +111,38 @@ public class Build : SmartBuild<VersioningStrategy.GitVersion>
   /// <summary>
   /// GitVersion information for SmartBuild (disabled)
   /// </summary>
-  [GitVersion(Framework = "net9.0", NoFetch = true)]
+  [GitVersion(Framework = "net10.0", NoFetch = true)]
   // ReSharper disable once UnusedAutoPropertyAccessor.Global
   public GitVersion GitVersion { get; set; } = default!;
 
   public static int Main() => Execute<Build>(x => x.All);
 }
 ```
+
+### Local dotnet tools
+
+SmartBuild treats `.config/dotnet-tools.json` as pinned. `DotnetOutdatedInstall` (`dotnet-outdated-tool`) and `HuskyInstall` (`husky`) run `dotnet tool install <id> --create-manifest-if-needed` only when the tool manifest does not list the tool. The manifest is looked up from the repo root upwards (`.config/dotnet-tools.json` or `dotnet-tools.json`), stopping at a manifest with `isRoot: true`.
+
+Otherwise the targets only run `dotnet tool restore`, so builds never modify the manifest. To upgrade a tool, run `dotnet tool update <id>` and commit the manifest.
+
+`HuskyInstall` also copies the `.husky` hook templates when that folder is missing, and then runs `dotnet husky install`.
+
+`DotnetOutdatedInstall` runs as a dependency of `BuildDependencyTree` (and so of `BetaCheck`, `OutdatedCheck` and `RunChecks`) and of `UpdateOutdated`. `HuskyInstall` runs as a dependency of `CommitCheck`.
+
+`UpdateOutdated` updates NuGet package references, not local tools.
+
+### CloudTek.Build.Tool (cloudtek-build)
+
+`CloudTek.Build.Tool` is a dotnet tool that runs the built-in `SmartBuild<VersioningStrategy.Default>`, so a repository can use SmartBuild targets without its own NUKE build project.
+
+```bash
+dotnet tool install CloudTek.Build.Tool --create-manifest-if-needed
+dotnet tool run cloudtek-build --target UnitTests
+```
+
+The tool is pinned in `.config/dotnet-tools.json`. Commit the manifest, and other machines and CI run `dotnet tool restore`. The same pinning rules apply to the tool itself: upgrade it with `dotnet tool update CloudTek.Build.Tool` and commit the manifest.
+
+It accepts any SmartBuild target and parameter (for example `--target UnitTests --collect-coverage true`) and runs the `All` target by default. If the current directory has no `.nuke/` folder, the tool creates one (with a `.gitignore`).
 
 ### SmartBuild Package Restoration
 
@@ -173,7 +198,7 @@ SmartBuild can collect code coverage information from your project.
 
 - `dotnet nuke --target UnitTests --collect-coverage <true | false>`
 
-Enabling the `--collect-coverage` will cause the SmartBuild to run `dotnet add package coverlet.msbuild` against all test assemblies and add additional cmdline arguments to `dotnet test` which will cause coverage information collection.
+Enabling the `--collect-coverage` will cause the SmartBuild to run `dotnet add package coverlet.collector` against all test assemblies and add additional cmdline arguments to `dotnet test` which will cause coverage information collection.
 
 The process is designed to collect coverage from multiple test assemblies.
 
@@ -208,6 +233,7 @@ The `CommitCheck` target can be used in order to validate commit messages server
 
 The target will run a dependend `HuskyInstall` target which will execute:
 
+- `dotnet tool restore` (husky is installed only if it is missing from the tool manifest, see [Local dotnet tools](#local-dotnet-tools))
 - `dotnet husky install`
 
 Requires `.git` folder to be present.
@@ -242,7 +268,7 @@ The target will cause `dotnet list package` to execute and gather all informatio
 
 #### OutdatedCheck
 
-The `OutdatedCheck` target can be used in order to check for BETA packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
+The `OutdatedCheck` target can be used in order to check for OUTDATED packages within the solution irregardless of the chosen package manager. The target needs to be run **AFTER** the `Restore` target.
 
 - `dotnet nuke --target OutdatedCheck`
 

@@ -2,11 +2,12 @@
 
 ## Overview
 
-This project uses the **CloudTek.Build** toolset - a standardized build and testing framework consisting of three NuGet packages:
+This project uses the **CloudTek.Build** toolset - a standardized build and testing framework consisting of four NuGet packages:
 
 1. **CloudTek.Build** - NUKE-based build automation with quality checks
-2. **CloudTek.Testing** - XUnit extensions for conditional and categorized testing
-3. **CloudTek.Git** - Conventional commit validation via Husky.NET
+2. **CloudTek.Build.Tool** - the `cloudtek-build` dotnet tool that runs SmartBuild targets without a repo-local NUKE build project
+3. **CloudTek.Testing** - XUnit extensions for conditional and categorized testing
+4. **CloudTek.Git** - Conventional commit validation via Husky.NET
 
 These packages provide a consistent development workflow across all CloudTek repositories.
 
@@ -23,6 +24,8 @@ dotnet nuke --target Restore
 ```
 
 ### Common Commands
+
+Repositories without their own NUKE build project can run the same targets through the `cloudtek-build` dotnet tool (`dotnet tool run cloudtek-build --target <Target>`).
 
 ```bash
 # Run all checks and tests
@@ -81,6 +84,7 @@ dotnet nuke --target Test --skip IntegrationTests
 - **`BetaCheck`** - Detect unpinned pre-release packages
 - **`OutdatedCheck`** - Detect outdated packages
 - **`VulnerabilityCheck`** - Scan for vulnerable packages
+- **`HuskyInstall`** - Restore `husky` from the local tool manifest and install git hooks (installs the tool only if it is not listed yet; never upgrades a pinned version)
 
 **Common Usage:**
 ```bash
@@ -102,6 +106,7 @@ dotnet nuke --target Format
 
 ### Package Management Targets
 
+- **`DotnetOutdatedInstall`** - Restore `dotnet-outdated-tool` from the local tool manifest (installs it only if it is not listed yet; never upgrades a pinned version)
 - **`UpdateOutdated`** - Update outdated packages
 - **`BuildDependencyTree`** - Analyze solution dependencies
 
@@ -170,8 +175,8 @@ public void MySystemTest() { }
 ```
 
 Build targets filter by category:
-- `UnitTests` → `Category=Unit`
-- `IntegrationTests` → `Category=Integration`
+- `UnitTests` → `Category=UnitTests`
+- `IntegrationTests` → `Category=IntegrationTests`
 
 ### Platform-Specific Tests
 
@@ -257,7 +262,7 @@ public class Build : SmartBuild<VersioningStrategy.Default>
 
 Or via CLI:
 ```bash
-dotnet nuke --target UnitTests --test-filter "Category=Unit&Priority=High"
+dotnet nuke --target UnitTests --test-filter "Category=UnitTests&Priority=High"
 ```
 
 Filter syntax: [Microsoft Docs](https://learn.microsoft.com/en-us/dotnet/core/testing/selective-unit-tests)
@@ -324,8 +329,8 @@ All build parameters can be set via environment variables:
 
 ```bash
 # Format options (use ONE, not both):
-export TESTFILTER="Category=Unit"           # Option 1
-export NUKE_TESTFILTER="Category=Unit"      # Option 2
+export TESTFILTER="Category=UnitTests"           # Option 1
+export NUKE_TESTFILTER="Category=UnitTests"      # Option 2
 
 # Other examples
 export CONFIGURATION="Release"
@@ -452,6 +457,10 @@ dotnet nuke --target BetaCheck --packages-filter "Nuke"
 dotnet nuke --target UpdateOutdated
 ```
 
+### Updating Local Tools
+
+Tools in `.config/dotnet-tools.json` are pinned. SmartBuild only restores them and never upgrades them. To upgrade a tool, run `dotnet tool update <tool-id>` and commit the manifest.
+
 ## Troubleshooting
 
 ### "Could not resolve {VariableName} since multiple values are provided"
@@ -560,3 +569,5 @@ When working with projects using CloudTek.Build:
 9. **Coverage requires test execution** - Empty test runs fail when `--collect-coverage` is enabled
 
 10. **SmartBuild is inherited, not modified** - Projects extend it; the base class is in the NuGet package
+
+11. **Local tools are pinned** - Builds never modify `.config/dotnet-tools.json`; tool upgrades are explicit `dotnet tool update` commits

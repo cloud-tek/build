@@ -17,24 +17,23 @@ namespace CloudTek.Build
   {
     /// <summary>
     /// dotnet nuke --target DotnetOutdatedInstall
-    /// Installs dotnet tool: dotnet-outdated-tool
-    /// Updates outdated packages
+    /// Restores dotnet-outdated-tool from the local tool manifest.
+    /// Installs it only if the manifest does not list it; never upgrades a pinned version.
     /// </summary>
 #pragma warning disable CA1822
     public virtual Target DotnetOutdatedInstall => _ => _
       .Executes(
         () =>
         {
-          DotNetToolInstall(
-            c => c.SetPackageName("dotnet-outdated-tool")
-              .SetProcessAdditionalArguments("--create-manifest-if-needed"));
+          EnsureLocalTool("dotnet-outdated-tool");
           DotNetToolRestore();
         });
 #pragma warning restore CA1822
 
     /// <summary>
     /// dotnet nuke --target HuskyInstall
-    /// Installs Husky.NET
+    /// Restores Husky.NET from the local tool manifest.
+    /// Installs it only if the manifest does not list it; never upgrades a pinned version.
     /// </summary>
     protected virtual Target HuskyInstall => _ => _
       .Executes(
@@ -48,17 +47,14 @@ namespace CloudTek.Build
             {
               await Assembly.GetExecutingAssembly().CopyResources(path, ".templates..husky");
 
-              DotNetToolInstall(
-                c =>
-                  c.SetPackageName("husky")
-                    .SetProcessAdditionalArguments("--create-manifest-if-needed"));
-
-              Log.Information("husky installed");
+              Log.Information("husky hook templates copied");
             }
             else
             {
-              Log.Information("husky already installed");
+              Log.Information("husky hooks already present");
             }
+
+            EnsureLocalTool("husky");
           }
           finally
           {
@@ -66,5 +62,19 @@ namespace CloudTek.Build
             DotNet("husky install", RootDirectory);
           }
         });
+
+    private static void EnsureLocalTool(string packageId)
+    {
+      if (ToolManifest.ContainsTool(RootDirectory, packageId))
+      {
+        Log.Information("{Tool} is listed in the tool manifest; restoring the pinned version", packageId);
+        return;
+      }
+
+      Log.Information("{Tool} is missing from the tool manifest; installing it", packageId);
+      DotNetToolInstall(
+        c => c.SetPackageName(packageId)
+          .SetProcessAdditionalArguments("--create-manifest-if-needed"));
+    }
   }
 }
